@@ -1,0 +1,42 @@
+name: Worthify
+version: 1.0.0
+main: dev.simpleye.worthify.WorthifyPlugin
+author: "YE"
+discord: "._.ye"
+github: "https://github.com/itz-intellij/Worthify"
+api-version: '1.21'
+folia-supported: true
+softdepend:
+  - Vault
+  - PlaceholderAPI
+  - ProtocolLib
+commands:
+  sell:
+    description: Sell items for money
+    usage: /sell [hand|all]
+    permission: worthify.sell
+  pay:
+    description: Pay another player money
+    usage: /pay <player> <amount>
+    permission: worthify.sell
+  setworth:
+    description: Set worth value for the item in your main hand
+    usage: /setworth <number>
+    permission: worthify.admin
+  worth:
+    description: View all item worth values
+    usage: /worth [page]
+    permission: worthify.sell
+  sellhistory:
+    description: View your sell history
+    usage: /sellhistory [page]
+    permission: worthify.sell
+  worthify:
+    description: Worthify admin command
+    usage: /worthify reload
+    permission: worthify.admin
+permissions:
+  worthify.sell:
+    default: true
+  worthify.admin:
+    default: op
