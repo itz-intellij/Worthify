@@ -70,9 +70,8 @@ The built jar will be in:
 
 ## Support / Links
 
-- **Source**: *(your GitHub repo URL)*
-- **Issues**: *(your GitHub issues URL)*
-- **Modrinth**: *(your Modrinth project URL)*
+- **Issues**: *(https://github.com/itz-intellij/Worthify/issues)*
+- **Modrinth**: *(https://modrinth.com/project/worthify)*
 
 ## License
 
