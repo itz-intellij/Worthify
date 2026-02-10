@@ -8,6 +8,12 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
 public final class EconomyHook {
 
     private final JavaPlugin plugin;
@@ -116,6 +122,31 @@ public final class EconomyHook {
             return balanceStore.getBalance(player, internalStartingBalance);
         }
         return 0.0D;
+    }
+
+    public boolean isUsingInternalEconomy() {
+        return economy == null && internalEnabled && balanceStore != null;
+    }
+
+    public boolean resetInternalBalance(OfflinePlayer player) {
+        if (!isUsingInternalEconomy()) {
+            return false;
+        }
+        return balanceStore.reset(player);
+    }
+
+    public List<Map.Entry<UUID, Double>> topInternalBalances(int limit) {
+        if (!isUsingInternalEconomy()) {
+            return java.util.Collections.emptyList();
+        }
+
+        int cap = Math.max(1, Math.min(100, limit));
+        List<Map.Entry<UUID, Double>> list = new ArrayList<>(balanceStore.snapshot().entrySet());
+        list.sort(Map.Entry.comparingByValue(Comparator.reverseOrder()));
+        if (list.size() > cap) {
+            return new ArrayList<>(list.subList(0, cap));
+        }
+        return list;
     }
 
     private void enableInternal() {

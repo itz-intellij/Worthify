@@ -13,7 +13,9 @@ import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.BlockStateMeta;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Locale;
 
 public final class SellService {
@@ -69,6 +71,8 @@ public final class SellService {
         int soldAmount = 0;
         double total = 0.0D;
 
+        Map<Material, SoldBucket> soldByType = new HashMap<>();
+
         for (int i = 0; i < storage.length; i++) {
             ItemStack item = storage[i];
             if (item == null || item.getType().isAir()) {
@@ -83,6 +87,11 @@ public final class SellService {
             int amount = item.getAmount();
             soldAmount += amount;
             total += stackWorth;
+
+            SoldBucket bucket = soldByType.computeIfAbsent(item.getType(), k -> new SoldBucket());
+            bucket.amount += amount;
+            bucket.total += stackWorth;
+
             storage[i] = null;
         }
 
@@ -94,7 +103,11 @@ public final class SellService {
         economyHook.deposit(player, total);
 
         if (historyStore != null) {
-            historyStore.append(player.getUniqueId(), new SellHistoryEntry(System.currentTimeMillis(), "MIXED", soldAmount, total));
+            long ts = System.currentTimeMillis();
+            for (Map.Entry<Material, SoldBucket> e : soldByType.entrySet()) {
+                SoldBucket b = e.getValue();
+                historyStore.append(player.getUniqueId(), new SellHistoryEntry(ts, e.getKey().name(), b.amount, b.total));
+            }
         }
 
         return SellResult.success(soldAmount, total);
@@ -107,6 +120,8 @@ public final class SellService {
 
         int soldAmount = 0;
         double total = 0.0D;
+
+        Map<Material, SoldBucket> soldByType = new HashMap<>();
 
         for (int slot : slots) {
             if (slot < 0 || slot >= inventory.getSize()) {
@@ -126,6 +141,11 @@ public final class SellService {
             int amount = item.getAmount();
             soldAmount += amount;
             total += stackWorth;
+
+            SoldBucket bucket = soldByType.computeIfAbsent(item.getType(), k -> new SoldBucket());
+            bucket.amount += amount;
+            bucket.total += stackWorth;
+
             inventory.setItem(slot, null);
         }
 
@@ -136,7 +156,11 @@ public final class SellService {
         economyHook.deposit(player, total);
 
         if (historyStore != null) {
-            historyStore.append(player.getUniqueId(), new SellHistoryEntry(System.currentTimeMillis(), "MIXED", soldAmount, total));
+            long ts = System.currentTimeMillis();
+            for (Map.Entry<Material, SoldBucket> e : soldByType.entrySet()) {
+                SoldBucket b = e.getValue();
+                historyStore.append(player.getUniqueId(), new SellHistoryEntry(ts, e.getKey().name(), b.amount, b.total));
+            }
         }
         return SellResult.success(soldAmount, total);
     }
@@ -157,6 +181,8 @@ public final class SellService {
         double total = 0.0D;
         List<ItemStack> unsellable = new ArrayList<>();
 
+        Map<Material, SoldBucket> soldByType = new HashMap<>();
+
         ItemStack[] contents = inventory.getContents();
         for (int i = 0; i < contents.length; i++) {
             ItemStack item = contents[i];
@@ -173,6 +199,10 @@ public final class SellService {
             int amount = item.getAmount();
             soldAmount += amount;
             total += stackWorth;
+
+            SoldBucket bucket = soldByType.computeIfAbsent(item.getType(), k -> new SoldBucket());
+            bucket.amount += amount;
+            bucket.total += stackWorth;
         }
 
         inventory.clear();
@@ -184,10 +214,19 @@ public final class SellService {
         economyHook.deposit(player, total);
 
         if (historyStore != null) {
-            historyStore.append(player.getUniqueId(), new SellHistoryEntry(System.currentTimeMillis(), "MIXED", soldAmount, total));
+            long ts = System.currentTimeMillis();
+            for (Map.Entry<Material, SoldBucket> e : soldByType.entrySet()) {
+                SoldBucket b = e.getValue();
+                historyStore.append(player.getUniqueId(), new SellHistoryEntry(ts, e.getKey().name(), b.amount, b.total));
+            }
         }
 
         return new SellProcessResult(SellResult.success(soldAmount, total), unsellable);
+    }
+
+    private static final class SoldBucket {
+        private int amount;
+        private double total;
     }
 
     private double calculateStackWorth(ItemStack stack, int depth) {

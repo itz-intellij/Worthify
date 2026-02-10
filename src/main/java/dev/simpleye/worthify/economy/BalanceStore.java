@@ -7,6 +7,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -101,6 +102,18 @@ final class BalanceStore {
         UUID uuid = player.getUniqueId();
         double next = getBalance(player, defaultBalance) + amount;
         balances.put(uuid, next);
+        return save();
+    }
+
+    Map<UUID, Double> snapshot() {
+        return new LinkedHashMap<>(balances);
+    }
+
+    boolean reset(OfflinePlayer player) {
+        if (player == null) {
+            return false;
+        }
+        balances.put(player.getUniqueId(), 0.0D);
         return save();
     }
 
