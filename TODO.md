@@ -20,3 +20,5 @@
 - [ ] Add database-backed sell history (SQLite)
 - [ ] Add API for other plugins (expose worth lookup + sell events)
 - [ ] Improve Balance Top ( make it to be a gui with a clean look )
+- [ ] Improve config.yml file
+- [ ] Make Sellgui , Sellhistory , BalanceTop guis Editable ( Each One Of Them Should Have A File Cause The Config Looks Missy :) )
