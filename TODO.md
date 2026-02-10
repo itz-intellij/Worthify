@@ -19,3 +19,4 @@
 - [ ] Add localization support (message keys + language files)
 - [ ] Add database-backed sell history (SQLite)
 - [ ] Add API for other plugins (expose worth lookup + sell events)
+- [ ] Improve Balance Top ( make it to be a gui with a clean look )
