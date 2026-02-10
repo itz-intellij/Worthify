@@ -41,8 +41,7 @@ Worthify is a lightweight Paper plugin that assigns a configurable "worth" value
 ## Installation
 
 1. Download the latest `Worthify` jar from:
-   - GitHub Releases: *(add link once you publish)*
-   - Modrinth: *(add link once you publish)*
+   - Modrinth: *(https://modrinth.com/project/worthify)*
 2. Put the jar into your server’s `plugins/` folder.
 3. (Optional) Install **Vault** and an economy plugin (e.g. EssentialsX Economy) to use your server's main economy.
    - If Vault is not installed, Worthify will fall back to its own internal economy (balances stored in `balances.yml`).
