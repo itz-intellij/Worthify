@@ -1,11 +1,14 @@
 package dev.simpleye.worthify;
 
 import dev.simpleye.worthify.command.WorthifyCommand;
+import dev.simpleye.worthify.command.BalanceCommand;
+import dev.simpleye.worthify.command.DeleteWorthCommand;
 import dev.simpleye.worthify.command.NotImplementedCommand;
 import dev.simpleye.worthify.command.PayCommand;
 import dev.simpleye.worthify.command.SellCommand;
 import dev.simpleye.worthify.command.SellHistoryCommand;
 import dev.simpleye.worthify.command.SetWorthCommand;
+import dev.simpleye.worthify.command.TopBalanceCommand;
 import dev.simpleye.worthify.command.WorthCommand;
 import dev.simpleye.worthify.compat.MaterialResolver;
 import dev.simpleye.worthify.compat.ServerVersion;
@@ -60,6 +63,9 @@ public final class WorthifyPlugin extends JavaPlugin {
         this.sellHistoryGuiManager = new SellHistoryGuiManager(this);
 
         registerCommand("sell", new SellCommand(this.sellService, this.sellOnCloseGuiManager));
+        registerCommand("balance", new BalanceCommand(this));
+        registerCommand("topbal", new TopBalanceCommand(this));
+        registerCommand("deleteworth", new DeleteWorthCommand(this));
         registerCommand("pay", new PayCommand(this));
         registerCommand("setworth", new SetWorthCommand(this));
         registerCommand("worthify", new WorthifyCommand(this));

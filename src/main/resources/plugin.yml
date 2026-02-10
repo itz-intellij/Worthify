@@ -15,6 +15,20 @@ commands:
     description: Sell items for money
     usage: /sell [hand|all]
     permission: worthify.sell
+  balance:
+    description: View your balance
+    usage: /balance
+    aliases: [bal]
+    permission: worthify.sell
+  topbal:
+    description: View the richest players (internal economy)
+    usage: /topbal [limit]
+    aliases: [top]
+    permission: worthify.sell
+  deleteworth:
+    description: Reset a player's internal balance
+    usage: /deleteworth <player>
+    permission: worth.delete
   pay:
     description: Pay another player money
     usage: /pay <player> <amount>
@@ -39,4 +53,6 @@ permissions:
   worthify.sell:
     default: true
   worthify.admin:
+    default: op
+  worth.delete:
     default: op
