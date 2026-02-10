@@ -2,6 +2,7 @@ package dev.simpleye.worthify.gui;
 
 import dev.simpleye.worthify.WorthifyPlugin;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 
@@ -16,8 +17,16 @@ public final class SellOnCloseGuiManager {
     }
 
     public void open(Player player) {
-        FileConfiguration cfg = plugin.getConfigManager().getMainConfig();
-        String title = ColorUtil.colorize(cfg.getString("gui.sell.title", "Sell"));
+        FileConfiguration mainCfg = plugin.getConfigManager().getMainConfig();
+        YamlConfiguration guiCfg = plugin.getConfigManager().getSellGuiConfig();
+
+        String rawTitle;
+        if (guiCfg != null && guiCfg.contains("title")) {
+            rawTitle = guiCfg.getString("title", "Sell");
+        } else {
+            rawTitle = mainCfg.getString("gui.sell.title", "Sell");
+        }
+        String title = ColorUtil.colorize(rawTitle);
 
         SellGuiHolder holder = new SellGuiHolder();
         Inventory inv = plugin.getServer().createInventory(holder, GUI_SIZE, title);

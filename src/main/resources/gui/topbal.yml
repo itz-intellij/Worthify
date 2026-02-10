@@ -1,0 +1,12 @@
+title: "ᴛᴏᴘ ʙᴀʟᴀɴᴄᴇs (Page {currentPage}/{maxPages})"
+navigation:
+  next:
+    material: ARROW
+    title: "#00F986ɴᴇxᴛ"
+    lore:
+      - "&fClick to go to the next page"
+  back:
+    material: ARROW
+    title: "#00F986ʙᴀᴄᴋ"
+    lore:
+      - "&fClick to go to the previous page"

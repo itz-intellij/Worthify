@@ -1,0 +1,19 @@
+title: "sᴇʟʟ ʜɪsᴛᴏʀʏ (Page {currentPage}/{maxPages})"
+navigation:
+  next:
+    material: ARROW
+    title: "#00F986ɴᴇxᴛ"
+    lore:
+      - "&fClick to go to the next page"
+  back:
+    material: ARROW
+    title: "#00F986ʙᴀᴄᴋ"
+    lore:
+      - "&fClick to go to the previous page"
+sorting:
+  material: HOPPER
+  title: "#00F986sᴇʟʟ ʜɪsᴛᴏʀʏ"
+  lore:
+    - "&fClick to sort"
+    - ""
+    - "&7({currentSort})"

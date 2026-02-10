@@ -1,6 +1,7 @@
 package dev.simpleye.worthify.command;
 
 import dev.simpleye.worthify.gui.SellOnCloseGuiManager;
+import dev.simpleye.worthify.message.MessageService;
 import dev.simpleye.worthify.sell.SellResult;
 import dev.simpleye.worthify.sell.SellService;
 import org.bukkit.ChatColor;
@@ -13,16 +14,22 @@ public final class SellCommand implements CommandExecutor {
 
     private final SellService sellService;
     private final SellOnCloseGuiManager sellGuiManager;
+    private final MessageService messages;
 
-    public SellCommand(SellService sellService, SellOnCloseGuiManager sellGuiManager) {
+    public SellCommand(SellService sellService, SellOnCloseGuiManager sellGuiManager, MessageService messages) {
         this.sellService = sellService;
         this.sellGuiManager = sellGuiManager;
+        this.messages = messages;
     }
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player player)) {
-            sender.sendMessage("Players only.");
+            if (messages != null) {
+                messages.send(sender, "errors.players_only");
+            } else {
+                sender.sendMessage("Players only.");
+            }
             return true;
         }
 
@@ -38,22 +45,40 @@ public final class SellCommand implements CommandExecutor {
             case "hand" -> result = sellService.sellHand(player);
             case "all" -> result = sellService.sellAll(player);
             default -> {
-                sender.sendMessage(ChatColor.RED + "Usage: /sell [hand|all]");
+                if (messages != null) {
+                    messages.send(sender, "sell.usage");
+                } else {
+                    sender.sendMessage(ChatColor.RED + "Usage: /sell [hand|all]");
+                }
                 return true;
             }
         }
 
         if (result.economyMissing()) {
-            sender.sendMessage(ChatColor.RED + "Economy is not available.");
+            if (messages != null) {
+                messages.send(sender, "errors.economy_unavailable");
+            } else {
+                sender.sendMessage(ChatColor.RED + "Economy is not available.");
+            }
             return true;
         }
 
         if (!result.success()) {
-            sender.sendMessage(ChatColor.RED + "Nothing to sell.");
+            if (messages != null) {
+                messages.send(sender, "sell.nothing_to_sell");
+            } else {
+                sender.sendMessage(ChatColor.RED + "Nothing to sell.");
+            }
             return true;
         }
 
-        sender.sendMessage(ChatColor.GREEN + "Sold " + result.soldAmount() + " items for $" + SellService.formatMoney(result.total()) + ".");
+        if (messages != null) {
+            messages.send(sender, "sell.sold",
+                    "amount", Integer.toString(result.soldAmount()),
+                    "total", SellService.formatMoney(result.total()));
+        } else {
+            sender.sendMessage(ChatColor.GREEN + "Sold " + result.soldAmount() + " items for $" + SellService.formatMoney(result.total()) + ".");
+        }
         return true;
     }
 }

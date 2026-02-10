@@ -143,12 +143,16 @@ public final class WorthLoreProtocolLibHook {
 
         List<String> lore = meta.getLore();
         List<String> nextLore = lore == null ? new ArrayList<>() : new ArrayList<>(lore);
-
+    // alr here we go
         if (marker != null && !marker.isEmpty()) {
-            for (String existing : nextLore) {
+            for (int i = 0; i < nextLore.size(); i++) {
+                String existing = nextLore.get(i);
                 String stripped = ChatColor.stripColor(existing);
                 if (stripped != null && stripped.trim().toLowerCase().startsWith(marker)) {
-                    return stack;
+                    nextLore.set(i, line);
+                    meta.setLore(nextLore);
+                    copy.setItemMeta(meta);
+                    return copy;
                 }
             }
         }

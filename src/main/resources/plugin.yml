@@ -47,9 +47,15 @@ commands:
     permission: worthify.sell
   worthify:
     description: Worthify admin command
-    usage: /worthify reload
+    usage: /worthify <help|version|reload>
     permission: worthify.admin
 permissions:
+  worthify.*:
+    default: op
+    children:
+      worthify.sell: true
+      worthify.admin: true
+      worth.delete: true
   worthify.sell:
     default: true
   worthify.admin:

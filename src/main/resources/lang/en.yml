@@ -1,0 +1,47 @@
+errors:
+  players_only: "&cPlayers only."
+  economy_unavailable: "&cEconomy is not available."
+
+worthify:
+  reloaded: "&aWorthify reloaded."
+  usage: "&cUsage: /worthify <help|version|reload>"
+  version: "&aWorthify v{version}"
+  help:
+    - "&aWorthify Commands:"
+    - "&7/worthify help &f- Show this help"
+    - "&7/worthify version &f- Show plugin version"
+    - "&7/worthify reload &f- Reload configs"
+
+balance:
+  self: "&aBalance: &b${balance}"
+
+pay:
+  usage: "&cUsage: /pay <player> <amount>"
+  player_not_found: "&cPlayer not found (must be online): {player}"
+  cannot_pay_self: "&cYou cannot pay yourself."
+  invalid_amount: "&cInvalid amount: {amount}"
+  amount_must_be_positive: "&cAmount must be > 0"
+  not_enough: "&cYou don't have enough money. Balance: ${balance}"
+  failed: "&cPayment failed."
+  sent: "&aYou paid &f{player}&a ${amount}."
+  received: "&aYou received ${amount} from &f{player}&a."
+
+sell:
+  usage: "&cUsage: /sell [hand|all]"
+  nothing_to_sell: "&cNothing to sell."
+  sold: "&aSold {amount} items for ${total}."
+
+sellhistory:
+  usage: "&cUsage: /sellhistory [page]"
+
+worth:
+  hand_empty: "&cYou're not holding anything."
+  no_worth: "&eNo worth set for &f{item}&e."
+  hand_value: "&aWorth of &f{item}&a: &b${unit} &7each &8(x{amount})&a = &b${total}"
+
+topbal:
+  usage_page: "&cUsage: /topbal [page]"
+  usage_page_limit: "&cUsage: /topbal [page] [limit]"
+  header: "&6Top Balances:"
+  entry: "&e#{rank} &f{name}&7 - &b${balance}"
+  empty: "&7No balances yet."

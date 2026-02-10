@@ -4,6 +4,7 @@ import dev.simpleye.worthify.WorthifyPlugin;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -80,8 +81,15 @@ public final class WorthGuiManager {
             page = maxPages;
         }
 
-        FileConfiguration cfg = plugin.getConfigManager().getMainConfig();
-        String titleRaw = cfg.getString("gui.worth.title", "Worth (Page {currentPage}/{maxPages})");
+        FileConfiguration mainCfg = plugin.getConfigManager().getMainConfig();
+        YamlConfiguration guiCfg = plugin.getConfigManager().getWorthGuiConfig();
+
+        String titleRaw;
+        if (guiCfg != null && guiCfg.contains("title")) {
+            titleRaw = guiCfg.getString("title", "Worth (Page {currentPage}/{maxPages})");
+        } else {
+            titleRaw = mainCfg.getString("gui.worth.title", "Worth (Page {currentPage}/{maxPages})");
+        }
         String title = ColorUtil.colorize(titleRaw
                 .replace("{currentPage}", Integer.toString(page))
                 .replace("{maxPages}", Integer.toString(maxPages)));
@@ -101,8 +109,17 @@ public final class WorthGuiManager {
             inv.setItem(slot, worthItem(entries.get(idx).getKey(), entries.get(idx).getValue()));
         }
 
-        inv.setItem(BACK_SLOT, navItem(cfg.getConfigurationSection("gui.worth.navigation.back")));
-        inv.setItem(NEXT_SLOT, navItem(cfg.getConfigurationSection("gui.worth.navigation.next")));
+        ConfigurationSection backSec = guiCfg != null ? guiCfg.getConfigurationSection("navigation.back") : null;
+        if (backSec == null) {
+            backSec = mainCfg.getConfigurationSection("gui.worth.navigation.back");
+        }
+        ConfigurationSection nextSec = guiCfg != null ? guiCfg.getConfigurationSection("navigation.next") : null;
+        if (nextSec == null) {
+            nextSec = mainCfg.getConfigurationSection("gui.worth.navigation.next");
+        }
+
+        inv.setItem(BACK_SLOT, navItem(backSec));
+        inv.setItem(NEXT_SLOT, navItem(nextSec));
 
         player.openInventory(inv);
         WorthGuiSession.set(player, page, maxPages);

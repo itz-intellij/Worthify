@@ -1,6 +1,8 @@
 package dev.simpleye.worthify.command;
 
 import dev.simpleye.worthify.WorthifyPlugin;
+import dev.simpleye.worthify.gui.TopBalGuiManager;
+import dev.simpleye.worthify.message.MessageService;
 import dev.simpleye.worthify.sell.SellService;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -8,6 +10,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 import java.util.List;
 import java.util.Map;
@@ -16,15 +19,22 @@ import java.util.UUID;
 public final class TopBalanceCommand implements CommandExecutor {
 
     private final WorthifyPlugin plugin;
+    private final TopBalGuiManager gui;
 
-    public TopBalanceCommand(WorthifyPlugin plugin) {
+    public TopBalanceCommand(WorthifyPlugin plugin, TopBalGuiManager gui) {
         this.plugin = plugin;
+        this.gui = gui;
     }
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        MessageService messages = plugin.getMessages();
         if (!plugin.getEconomyHook().isEnabled()) {
-            sender.sendMessage(ChatColor.RED + "Economy is not available.");
+            if (messages != null) {
+                messages.send(sender, "errors.economy_unavailable");
+            } else {
+                sender.sendMessage(ChatColor.RED + "Economy is not available.");
+            }
             return true;
         }
 
@@ -33,14 +43,36 @@ public final class TopBalanceCommand implements CommandExecutor {
             return true;
         }
 
+        int page = 1;
         int limit = 10;
         if (args.length == 1) {
             try {
-                limit = Integer.parseInt(args[0]);
+                page = Integer.parseInt(args[0]);
             } catch (NumberFormatException ex) {
-                sender.sendMessage(ChatColor.RED + "Usage: /topbal [limit]");
+                if (messages != null) {
+                    messages.send(sender, "topbal.usage_page");
+                } else {
+                    sender.sendMessage(ChatColor.RED + "Usage: /topbal [page]");
+                }
                 return true;
             }
+        } else if (args.length == 2) {
+            try {
+                page = Integer.parseInt(args[0]);
+                limit = Integer.parseInt(args[1]);
+            } catch (NumberFormatException ex) {
+                if (messages != null) {
+                    messages.send(sender, "topbal.usage_page_limit");
+                } else {
+                    sender.sendMessage(ChatColor.RED + "Usage: /topbal [page] [limit]");
+                }
+                return true;
+            }
+        }
+
+        if (sender instanceof Player player && gui != null) {
+            gui.open(player, page, limit);
+            return true;
         }
 
         List<Map.Entry<UUID, Double>> top = plugin.getEconomyHook().topInternalBalances(limit);

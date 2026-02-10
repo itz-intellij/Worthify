@@ -1,6 +1,7 @@
 package dev.simpleye.worthify.command;
 
 import dev.simpleye.worthify.WorthifyPlugin;
+import dev.simpleye.worthify.message.MessageService;
 import dev.simpleye.worthify.sell.SellService;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -18,18 +19,31 @@ public final class BalanceCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        MessageService messages = plugin.getMessages();
         if (!(sender instanceof Player player)) {
-            sender.sendMessage("Players only.");
+            if (messages != null) {
+                messages.send(sender, "errors.players_only");
+            } else {
+                sender.sendMessage("Players only.");
+            }
             return true;
         }
 
         if (!plugin.getEconomyHook().isEnabled()) {
-            sender.sendMessage(ChatColor.RED + "Economy is not available.");
+            if (messages != null) {
+                messages.send(sender, "errors.economy_unavailable");
+            } else {
+                sender.sendMessage(ChatColor.RED + "Economy is not available.");
+            }
             return true;
         }
 
         double balance = plugin.getEconomyHook().getBalance(player);
-        sender.sendMessage(ChatColor.GREEN + "Balance: " + ChatColor.AQUA + "$" + SellService.formatMoney(balance));
+        if (messages != null) {
+            messages.send(sender, "balance.self", "balance", SellService.formatMoney(balance));
+        } else {
+            sender.sendMessage(ChatColor.GREEN + "Balance: " + ChatColor.AQUA + "$" + SellService.formatMoney(balance));
+        }
         return true;
     }
 }

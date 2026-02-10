@@ -1,8 +1,10 @@
 package dev.simpleye.worthify.gui;
 
 import dev.simpleye.worthify.WorthifyPlugin;
-import dev.simpleye.worthify.history.SellHistoryEntry;
+import dev.simpleye.worthify.sell.SellService;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -10,15 +12,14 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.SkullMeta;
 
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
-public final class SellHistoryGuiManager {
+public final class TopBalGuiManager {
 
     public static final int GUI_SIZE = 54;
     public static final int BACK_SLOT = 45;
@@ -32,46 +33,49 @@ public final class SellHistoryGuiManager {
             36, 37, 38, 39, 40, 41, 42, 43, 44
     };
 
-    private static final DateTimeFormatter TS_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
-            .withZone(ZoneId.systemDefault());
-
     private final WorthifyPlugin plugin;
 
-    public SellHistoryGuiManager(WorthifyPlugin plugin) {
+    public TopBalGuiManager(WorthifyPlugin plugin) {
         this.plugin = plugin;
     }
 
-    public void open(Player player, int page) {
+    public void open(Player player, int page, int limit) {
         if (page < 1) {
             page = 1;
         }
 
-        List<SellHistoryEntry> history = plugin.getSellHistoryStore().get(player.getUniqueId());
-        if (history.isEmpty()) {
-            history = Collections.emptyList();
+        int cap = limit <= 0 ? 10 : Math.min(100, limit);
+        List<Map.Entry<UUID, Double>> top = plugin.getEconomyHook().topInternalBalances(Integer.MAX_VALUE);
+        if (top.isEmpty()) {
+            top = java.util.Collections.emptyList();
+        }
+
+        if (top.size() > cap) {
+            top = new ArrayList<>(top.subList(0, cap));
         }
 
         int perPage = CONTENT_SLOTS.length;
-        int maxPages = Math.max(1, (int) Math.ceil(history.size() / (double) perPage));
+        int maxPages = Math.max(1, (int) Math.ceil(top.size() / (double) perPage));
         if (page > maxPages) {
             page = maxPages;
         }
 
         FileConfiguration mainCfg = plugin.getConfigManager().getMainConfig();
-        YamlConfiguration guiCfg = plugin.getConfigManager().getSellHistoryGuiConfig();
+        YamlConfiguration guiCfg = plugin.getConfigManager().getTopBalGuiConfig();
 
         String titleRaw;
         if (guiCfg != null && guiCfg.contains("title")) {
-            titleRaw = guiCfg.getString("title", "Sell History (Page {currentPage}/{maxPages})");
+            titleRaw = guiCfg.getString("title", "Top Balances (Page {currentPage}/{maxPages})");
         } else {
-            titleRaw = mainCfg.getString("gui.sellhistory.title", "Sell History (Page {currentPage}/{maxPages})");
+            titleRaw = mainCfg.getString("gui.topbal.title", "Top Balances (Page {currentPage}/{maxPages})");
         }
+
         String title = ColorUtil.colorize(titleRaw
                 .replace("{currentPage}", Integer.toString(page))
                 .replace("{maxPages}", Integer.toString(maxPages)));
 
-        SellHistoryGuiHolder holder = new SellHistoryGuiHolder();
-        Inventory inv = plugin.getServer().createInventory(holder, GUI_SIZE, title);
+        TopBalGuiHolder holder = new TopBalGuiHolder();
+        Inventory inv = Bukkit.getServer().createInventory(holder, GUI_SIZE, title);
         holder.setInventory(inv);
 
         for (int i = 0; i < GUI_SIZE; i++) {
@@ -79,25 +83,25 @@ public final class SellHistoryGuiManager {
         }
 
         int start = (page - 1) * perPage;
-        int end = Math.min(history.size(), start + perPage);
+        int end = Math.min(top.size(), start + perPage);
         for (int idx = start; idx < end; idx++) {
-            inv.setItem(CONTENT_SLOTS[idx - start], historyItem(history.get(history.size() - 1 - idx)));
+            inv.setItem(CONTENT_SLOTS[idx - start], entryItem(idx + 1, top.get(idx)));
         }
 
         ConfigurationSection backSec = guiCfg != null ? guiCfg.getConfigurationSection("navigation.back") : null;
         if (backSec == null) {
-            backSec = mainCfg.getConfigurationSection("gui.sellhistory.navigation.back");
+            backSec = mainCfg.getConfigurationSection("gui.topbal.navigation.back");
         }
         ConfigurationSection nextSec = guiCfg != null ? guiCfg.getConfigurationSection("navigation.next") : null;
         if (nextSec == null) {
-            nextSec = mainCfg.getConfigurationSection("gui.sellhistory.navigation.next");
+            nextSec = mainCfg.getConfigurationSection("gui.topbal.navigation.next");
         }
 
         inv.setItem(BACK_SLOT, navItem(backSec));
         inv.setItem(NEXT_SLOT, navItem(nextSec));
 
         player.openInventory(inv);
-        SellHistoryGuiSession.set(player, page, maxPages);
+        TopBalGuiSession.set(player, page, maxPages, cap);
     }
 
     private static ItemStack filler() {
@@ -110,34 +114,21 @@ public final class SellHistoryGuiManager {
         return item;
     }
 
-    private static ItemStack historyItem(SellHistoryEntry entry) {
-        String mat = entry.materialName() == null ? "UNKNOWN" : entry.materialName();
-        Material icon;
-        String displayItemName;
-        if (mat.equalsIgnoreCase("MIXED")) {
-            icon = Material.CHEST;
-            displayItemName = "Mixed";
-        } else {
-            icon = Material.matchMaterial(mat);
-            if (icon == null) {
-                icon = Material.PAPER;
-            }
-            displayItemName = mat.replace('_', ' ');
-        }
+    private ItemStack entryItem(int rank, Map.Entry<UUID, Double> entry) {
+        OfflinePlayer p = Bukkit.getOfflinePlayer(entry.getKey());
+        String name = p.getName() == null ? entry.getKey().toString() : p.getName();
 
-        ItemStack item = new ItemStack(icon);
-        ItemMeta meta = item.getItemMeta();
-        if (meta != null) {
-            meta.setDisplayName(ColorUtil.colorize("#00F986Sale &7(" + displayItemName + " x" + entry.soldAmount() + ")"));
+        ItemStack skull = new ItemStack(Material.PLAYER_HEAD);
+        ItemMeta baseMeta = skull.getItemMeta();
+        if (baseMeta instanceof SkullMeta meta) {
+            meta.setOwningPlayer(p);
+            meta.setDisplayName(ColorUtil.colorize("#00F986#" + rank + " &f" + name));
             List<String> lore = new ArrayList<>();
-            lore.add(ColorUtil.colorize("&7Time: &f" + TS_FMT.format(Instant.ofEpochMilli(entry.timestampMillis()))));
-            lore.add(ColorUtil.colorize("&7Item: &f" + displayItemName));
-            lore.add(ColorUtil.colorize("&7Amount: &f" + entry.soldAmount()));
-            lore.add(ColorUtil.colorize("&7Total: &a$" + String.format(java.util.Locale.US, "%.2f", entry.total())));
+            lore.add(ColorUtil.colorize("&7Balance: &a$" + SellService.formatMoney(entry.getValue())));
             meta.setLore(lore);
-            item.setItemMeta(meta);
+            skull.setItemMeta(meta);
         }
-        return item;
+        return skull;
     }
 
     private ItemStack navItem(ConfigurationSection section) {

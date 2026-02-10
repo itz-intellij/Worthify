@@ -140,9 +140,14 @@ public final class EconomyHook {
             return java.util.Collections.emptyList();
         }
 
-        int cap = Math.max(1, Math.min(100, limit));
         List<Map.Entry<UUID, Double>> list = new ArrayList<>(balanceStore.snapshot().entrySet());
         list.sort(Map.Entry.comparingByValue(Comparator.reverseOrder()));
+
+        if (limit <= 0 || limit == Integer.MAX_VALUE) {
+            return list;
+        }
+
+        int cap = Math.max(1, Math.min(100, limit));
         if (list.size() > cap) {
             return new ArrayList<>(list.subList(0, cap));
         }

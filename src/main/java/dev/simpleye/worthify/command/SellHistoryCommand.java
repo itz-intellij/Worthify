@@ -1,6 +1,7 @@
 package dev.simpleye.worthify.command;
 
 import dev.simpleye.worthify.gui.SellHistoryGuiManager;
+import dev.simpleye.worthify.message.MessageService;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -10,15 +11,21 @@ import org.bukkit.entity.Player;
 public final class SellHistoryCommand implements CommandExecutor {
 
     private final SellHistoryGuiManager gui;
+    private final MessageService messages;
 
-    public SellHistoryCommand(SellHistoryGuiManager gui) {
+    public SellHistoryCommand(SellHistoryGuiManager gui, MessageService messages) {
         this.gui = gui;
+        this.messages = messages;
     }
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player player)) {
-            sender.sendMessage("Players only.");
+            if (messages != null) {
+                messages.send(sender, "errors.players_only");
+            } else {
+                sender.sendMessage("Players only.");
+            }
             return true;
         }
 
@@ -27,7 +34,11 @@ public final class SellHistoryCommand implements CommandExecutor {
             try {
                 page = Integer.parseInt(args[0]);
             } catch (NumberFormatException ex) {
-                sender.sendMessage(ChatColor.RED + "Usage: /sellhistory [page]");
+                if (messages != null) {
+                    messages.send(sender, "sellhistory.usage");
+                } else {
+                    sender.sendMessage(ChatColor.RED + "Usage: /sellhistory [page]");
+                }
                 return true;
             }
         }

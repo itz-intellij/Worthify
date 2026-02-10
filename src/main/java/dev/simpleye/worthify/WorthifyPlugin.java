@@ -16,12 +16,15 @@ import dev.simpleye.worthify.config.ConfigManager;
 import dev.simpleye.worthify.economy.EconomyHook;
 import dev.simpleye.worthify.gui.SellHistoryGuiManager;
 import dev.simpleye.worthify.gui.SellOnCloseGuiManager;
+import dev.simpleye.worthify.gui.TopBalGuiManager;
 import dev.simpleye.worthify.gui.WorthGuiManager;
 import dev.simpleye.worthify.hook.WorthLoreProtocolLibHook;
 import dev.simpleye.worthify.history.SellHistoryStore;
 import dev.simpleye.worthify.listener.SellHistoryGuiListener;
 import dev.simpleye.worthify.listener.SellOnCloseGuiListener;
+import dev.simpleye.worthify.listener.TopBalGuiListener;
 import dev.simpleye.worthify.listener.WorthGuiListener;
+import dev.simpleye.worthify.message.MessageService;
 import dev.simpleye.worthify.sell.SellService;
 import dev.simpleye.worthify.worth.WorthManager;
 import org.bukkit.command.PluginCommand;
@@ -37,22 +40,28 @@ public final class WorthifyPlugin extends JavaPlugin {
     private SellOnCloseGuiManager sellOnCloseGuiManager;
     private WorthGuiManager worthGuiManager;
     private SellHistoryGuiManager sellHistoryGuiManager;
+    private TopBalGuiManager topBalGuiManager;
     private ServerVersion serverVersion;
     private MaterialResolver materialResolver;
     private WorthLoreProtocolLibHook worthLoreProtocolLibHook;
+    private MessageService messages;
 
     @Override
     public void onEnable() {
         this.configManager = new ConfigManager(this);
         this.worthManager = new WorthManager();
         this.economyHook = new EconomyHook(this);
-        this.sellHistoryStore = new SellHistoryStore(this, 250);
+        this.sellHistoryStore = new SellHistoryStore(this, Integer.MAX_VALUE);
 
         this.serverVersion = ServerVersion.detect();
         this.materialResolver = new MaterialResolver(this.serverVersion);
         getLogger().info("Detected server version: " + this.serverVersion.raw());
 
         this.configManager.reload();
+
+        this.messages = new MessageService(this);
+        this.messages.reload();
+
         this.worthManager.reload(this.configManager.getPricesConfig(), this.materialResolver, msg -> getLogger().warning(msg));
         this.economyHook.hook();
         this.sellHistoryStore.reload();
@@ -61,22 +70,24 @@ public final class WorthifyPlugin extends JavaPlugin {
         this.sellOnCloseGuiManager = new SellOnCloseGuiManager(this);
         this.worthGuiManager = new WorthGuiManager(this);
         this.sellHistoryGuiManager = new SellHistoryGuiManager(this);
+        this.topBalGuiManager = new TopBalGuiManager(this);
 
-        registerCommand("sell", new SellCommand(this.sellService, this.sellOnCloseGuiManager));
+        registerCommand("sell", new SellCommand(this.sellService, this.sellOnCloseGuiManager, this.messages));
         registerCommand("balance", new BalanceCommand(this));
-        registerCommand("topbal", new TopBalanceCommand(this));
+        registerCommand("topbal", new TopBalanceCommand(this, this.topBalGuiManager));
         registerCommand("deleteworth", new DeleteWorthCommand(this));
         registerCommand("pay", new PayCommand(this));
         registerCommand("setworth", new SetWorthCommand(this));
         registerCommand("worthify", new WorthifyCommand(this));
         registerCommand("worth", new WorthCommand(this, this.worthGuiManager));
-        registerCommand("sellhistory", new SellHistoryCommand(this.sellHistoryGuiManager));
+        registerCommand("sellhistory", new SellHistoryCommand(this.sellHistoryGuiManager, this.messages));
 
         NotImplementedCommand notImplemented = new NotImplementedCommand();
 
         getServer().getPluginManager().registerEvents(new SellOnCloseGuiListener(this, this.sellService), this);
         getServer().getPluginManager().registerEvents(new WorthGuiListener(this, this.worthGuiManager), this);
         getServer().getPluginManager().registerEvents(new SellHistoryGuiListener(this.sellHistoryGuiManager), this);
+        getServer().getPluginManager().registerEvents(new TopBalGuiListener(this.topBalGuiManager), this);
 
         startWorthLoreHookIfEnabled();
     }
@@ -91,6 +102,9 @@ public final class WorthifyPlugin extends JavaPlugin {
 
     public void reloadPlugin() {
         this.configManager.reload();
+        if (this.messages != null) {
+            this.messages.reload();
+        }
         this.worthManager.reload(this.configManager.getPricesConfig(), this.materialResolver, msg -> getLogger().warning(msg));
         this.economyHook.hook();
         this.sellHistoryStore.reload();
@@ -158,6 +172,10 @@ public final class WorthifyPlugin extends JavaPlugin {
 
     public SellHistoryGuiManager getSellHistoryGuiManager() {
         return sellHistoryGuiManager;
+    }
+
+    public MessageService getMessages() {
+        return messages;
     }
 
     private void registerCommand(String name, org.bukkit.command.CommandExecutor executor) {

@@ -2,6 +2,7 @@ package dev.simpleye.worthify.command;
 
 import dev.simpleye.worthify.WorthifyPlugin;
 import dev.simpleye.worthify.gui.WorthGuiManager;
+import dev.simpleye.worthify.message.MessageService;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
@@ -22,15 +23,24 @@ public final class WorthCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        MessageService messages = plugin.getMessages();
         if (!(sender instanceof Player player)) {
-            sender.sendMessage("Players only.");
+            if (messages != null) {
+                messages.send(sender, "errors.players_only");
+            } else {
+                sender.sendMessage("Players only.");
+            }
             return true;
         }
 
         if (args.length >= 1 && args[0].equalsIgnoreCase("hand")) {
             ItemStack item = player.getInventory().getItemInMainHand();
             if (item == null || item.getType().isAir()) {
-                player.sendMessage(ChatColor.RED + "You're not holding anything.");
+                if (messages != null) {
+                    messages.send(player, "worth.hand_empty");
+                } else {
+                    player.sendMessage(ChatColor.RED + "You're not holding anything.");
+                }
                 return true;
             }
 
@@ -39,14 +49,26 @@ public final class WorthCommand implements CommandExecutor {
             double total = unit * item.getAmount();
 
             if (unit <= 0.0D) {
-                player.sendMessage(ChatColor.YELLOW + "No worth set for " + ChatColor.WHITE + type.name() + ChatColor.YELLOW + ".");
+                if (messages != null) {
+                    messages.send(player, "worth.no_worth", "item", type.name());
+                } else {
+                    player.sendMessage(ChatColor.YELLOW + "No worth set for " + ChatColor.WHITE + type.name() + ChatColor.YELLOW + ".");
+                }
                 return true;
             }
 
-            player.sendMessage(ChatColor.GREEN + "Worth of " + ChatColor.WHITE + type.name() + ChatColor.GREEN + ": "
-                    + ChatColor.AQUA + "$" + String.format(java.util.Locale.US, "%.2f", unit)
-                    + ChatColor.GRAY + " each" + ChatColor.DARK_GRAY + " (x" + item.getAmount() + ")" + ChatColor.GREEN
-                    + " = " + ChatColor.AQUA + "$" + String.format(java.util.Locale.US, "%.2f", total));
+            if (messages != null) {
+                messages.send(player, "worth.hand_value",
+                        "item", type.name(),
+                        "unit", String.format(java.util.Locale.US, "%.2f", unit),
+                        "amount", Integer.toString(item.getAmount()),
+                        "total", String.format(java.util.Locale.US, "%.2f", total));
+            } else {
+                player.sendMessage(ChatColor.GREEN + "Worth of " + ChatColor.WHITE + type.name() + ChatColor.GREEN + ": "
+                        + ChatColor.AQUA + "$" + String.format(java.util.Locale.US, "%.2f", unit)
+                        + ChatColor.GRAY + " each" + ChatColor.DARK_GRAY + " (x" + item.getAmount() + ")" + ChatColor.GREEN
+                        + " = " + ChatColor.AQUA + "$" + String.format(java.util.Locale.US, "%.2f", total));
+            }
             return true;
         }
 

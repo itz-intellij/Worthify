@@ -1,6 +1,7 @@
 package dev.simpleye.worthify.command;
 
 import dev.simpleye.worthify.WorthifyPlugin;
+import dev.simpleye.worthify.message.MessageService;
 import dev.simpleye.worthify.sell.SellService;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -20,24 +21,41 @@ public final class PayCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        MessageService messages = plugin.getMessages();
         if (!(sender instanceof Player player)) {
-            sender.sendMessage("Players only.");
+            if (messages != null) {
+                messages.send(sender, "errors.players_only");
+            } else {
+                sender.sendMessage("Players only.");
+            }
             return true;
         }
 
         if (args.length != 2) {
-            sender.sendMessage(ChatColor.RED + "Usage: /pay <player> <amount>");
+            if (messages != null) {
+                messages.send(sender, "pay.usage");
+            } else {
+                sender.sendMessage(ChatColor.RED + "Usage: /pay <player> <amount>");
+            }
             return true;
         }
 
         Player target = Bukkit.getPlayerExact(args[0]);
         if (target == null) {
-            sender.sendMessage(ChatColor.RED + "Player not found (must be online): " + args[0]);
+            if (messages != null) {
+                messages.send(sender, "pay.player_not_found", "player", args[0]);
+            } else {
+                sender.sendMessage(ChatColor.RED + "Player not found (must be online): " + args[0]);
+            }
             return true;
         }
 
         if (target.getUniqueId().equals(player.getUniqueId())) {
-            sender.sendMessage(ChatColor.RED + "You cannot pay yourself.");
+            if (messages != null) {
+                messages.send(sender, "pay.cannot_pay_self");
+            } else {
+                sender.sendMessage(ChatColor.RED + "You cannot pay yourself.");
+            }
             return true;
         }
 
@@ -45,17 +63,29 @@ public final class PayCommand implements CommandExecutor {
         try {
             amount = Double.parseDouble(args[1]);
         } catch (NumberFormatException ex) {
-            sender.sendMessage(ChatColor.RED + "Invalid amount: " + args[1]);
+            if (messages != null) {
+                messages.send(sender, "pay.invalid_amount", "amount", args[1]);
+            } else {
+                sender.sendMessage(ChatColor.RED + "Invalid amount: " + args[1]);
+            }
             return true;
         }
 
         if (amount <= 0.0D) {
-            sender.sendMessage(ChatColor.RED + "Amount must be > 0");
+            if (messages != null) {
+                messages.send(sender, "pay.amount_must_be_positive");
+            } else {
+                sender.sendMessage(ChatColor.RED + "Amount must be > 0");
+            }
             return true;
         }
 
         if (!plugin.getEconomyHook().isEnabled()) {
-            sender.sendMessage(ChatColor.RED + "Economy is not available.");
+            if (messages != null) {
+                messages.send(sender, "errors.economy_unavailable");
+            } else {
+                sender.sendMessage(ChatColor.RED + "Economy is not available.");
+            }
             return true;
         }
 
@@ -64,18 +94,31 @@ public final class PayCommand implements CommandExecutor {
 
         double balance = plugin.getEconomyHook().getBalance(from);
         if (balance < amount) {
-            sender.sendMessage(ChatColor.RED + "You don't have enough money. Balance: $" + SellService.formatMoney(balance));
+            if (messages != null) {
+                messages.send(sender, "pay.not_enough", "balance", SellService.formatMoney(balance));
+            } else {
+                sender.sendMessage(ChatColor.RED + "You don't have enough money. Balance: $" + SellService.formatMoney(balance));
+            }
             return true;
         }
 
         boolean ok = plugin.getEconomyHook().transfer(from, to, amount);
         if (!ok) {
-            sender.sendMessage(ChatColor.RED + "Payment failed.");
+            if (messages != null) {
+                messages.send(sender, "pay.failed");
+            } else {
+                sender.sendMessage(ChatColor.RED + "Payment failed.");
+            }
             return true;
         }
 
-        sender.sendMessage(ChatColor.GREEN + "You paid " + ChatColor.WHITE + target.getName() + ChatColor.GREEN + " $" + SellService.formatMoney(amount) + ".");
-        target.sendMessage(ChatColor.GREEN + "You received $" + SellService.formatMoney(amount) + " from " + ChatColor.WHITE + player.getName() + ChatColor.GREEN + ".");
+        if (messages != null) {
+            messages.send(sender, "pay.sent", "player", target.getName(), "amount", SellService.formatMoney(amount));
+            messages.send(target, "pay.received", "player", player.getName(), "amount", SellService.formatMoney(amount));
+        } else {
+            sender.sendMessage(ChatColor.GREEN + "You paid " + ChatColor.WHITE + target.getName() + ChatColor.GREEN + " $" + SellService.formatMoney(amount) + ".");
+            target.sendMessage(ChatColor.GREEN + "You received $" + SellService.formatMoney(amount) + " from " + ChatColor.WHITE + player.getName() + ChatColor.GREEN + ".");
+        }
         return true;
     }
 }

@@ -3,6 +3,7 @@ package dev.simpleye.worthify.gui;
 import dev.simpleye.worthify.WorthifyPlugin;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -24,10 +25,22 @@ public final class SellGuiManager {
     }
 
     public void open(Player player) {
-        FileConfiguration cfg = plugin.getConfigManager().getMainConfig();
-        String rawTitle = cfg.getString("gui.sell.title", "Sell");
+        FileConfiguration mainCfg = plugin.getConfigManager().getMainConfig();
+        YamlConfiguration guiCfg = plugin.getConfigManager().getSellGuiConfig();
+
+        String rawTitle;
+        if (guiCfg != null && guiCfg.contains("title")) {
+            rawTitle = guiCfg.getString("title", "Sell");
+        } else {
+            rawTitle = mainCfg.getString("gui.sell.title", "Sell");
+        }
         String title = ColorUtil.colorize(rawTitle);
-        List<Integer> collectSlots = cfg.getIntegerList("gui.sell.collect_slots");
+        List<Integer> collectSlots;
+        if (guiCfg != null && guiCfg.contains("collect_slots")) {
+            collectSlots = guiCfg.getIntegerList("collect_slots");
+        } else {
+            collectSlots = mainCfg.getIntegerList("gui.sell.collect_slots");
+        }
 
         SellGuiHolder holder = new SellGuiHolder();
         Inventory inv = plugin.getServer().createInventory(holder, GUI_SIZE, title);
