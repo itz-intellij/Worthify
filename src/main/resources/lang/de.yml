@@ -1,0 +1,57 @@
+# Lang : DE
+# This Could Be Not accurated so please if you you see a mistake
+# open a pull request on github or open issue on github please
+
+errors:
+  players_only: "&cNur Spieler."
+  economy_unavailable: "&cWirtschaft ist nicht verfügbar."
+
+worthify:
+  reloaded: "&aWorthify neu geladen."
+  usage: "&cBenutzung: /worthify <help|version|reload>"
+  version: "&aWorthify v{version}"
+  help:
+    - "&aWorthify Befehle:"
+    - "&7/worthify help &f- Diese Hilfe anzeigen"
+    - "&7/worthify version &f- Plugin-Version anzeigen"
+    - "&7/worthify reload &f- Konfigurationen neu laden"
+
+update:
+  available:
+    - "&eEin neues &6Worthify &eUpdate ist verfügbar."
+    - "&7Aktuell: &f{current} &8| &7Neueste: &a{latest}"
+    - "&7Download: &b{url}"
+
+balance:
+  self: "&aKontostand: &b${balance}"
+
+pay:
+  usage: "&cBenutzung: /pay <player> <amount>"
+  player_not_found: "&cSpieler nicht gefunden (muss online sein): {player}"
+  cannot_pay_self: "&cDu kannst dir nicht selbst Geld senden."
+  invalid_amount: "&cUngültiger Betrag: {amount}"
+  amount_must_be_positive: "&cDer Betrag muss > 0 sein"
+  not_enough: "&cDu hast nicht genug Geld. Kontostand: ${balance}"
+  failed: "&cZahlung fehlgeschlagen."
+  sent: "&aDu hast &f{player}&a ${amount} bezahlt."
+  received: "&aDu hast ${amount} von &f{player}&a erhalten."
+
+sell:
+  usage: "&cBenutzung: /sell [hand|all]"
+  nothing_to_sell: "&cNichts zu verkaufen."
+  sold: "&a{amount} Items für ${total} verkauft."
+
+sellhistory:
+  usage: "&cBenutzung: /sellhistory [page]"
+
+worth:
+  hand_empty: "&cDu hältst nichts in der Hand."
+  no_worth: "&eKein Wert gesetzt für &f{item}&e."
+  hand_value: "&aWert von &f{item}&a: &b${unit} &7jeweils &8(x{amount})&a = &b${total}"
+
+topbal:
+  usage_page: "&cBenutzung: /topbal [page]"
+  usage_page_limit: "&cBenutzung: /topbal [page] [limit]"
+  header: "&6Top Kontostände:"
+  entry: "&e#{rank} &f{name}&7 - &b${balance}"
+  empty: "&7Noch keine Kontostände."

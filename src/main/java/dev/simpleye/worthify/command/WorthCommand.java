@@ -46,7 +46,9 @@ public final class WorthCommand implements CommandExecutor {
 
             Material type = item.getType();
             double unit = plugin.getWorthManager().getUnitPrice(type);
-            double total = unit * item.getAmount();
+            double mult = plugin.getWorthMultiplier(type);
+            double unitMultiplied = unit * mult;
+            double total = unitMultiplied * item.getAmount();
 
             if (unit <= 0.0D) {
                 if (messages != null) {
@@ -60,12 +62,12 @@ public final class WorthCommand implements CommandExecutor {
             if (messages != null) {
                 messages.send(player, "worth.hand_value",
                         "item", type.name(),
-                        "unit", String.format(java.util.Locale.US, "%.2f", unit),
+                        "unit", String.format(java.util.Locale.US, "%.2f", unitMultiplied),
                         "amount", Integer.toString(item.getAmount()),
                         "total", String.format(java.util.Locale.US, "%.2f", total));
             } else {
                 player.sendMessage(ChatColor.GREEN + "Worth of " + ChatColor.WHITE + type.name() + ChatColor.GREEN + ": "
-                        + ChatColor.AQUA + "$" + String.format(java.util.Locale.US, "%.2f", unit)
+                        + ChatColor.AQUA + "$" + String.format(java.util.Locale.US, "%.2f", unitMultiplied)
                         + ChatColor.GRAY + " each" + ChatColor.DARK_GRAY + " (x" + item.getAmount() + ")" + ChatColor.GREEN
                         + " = " + ChatColor.AQUA + "$" + String.format(java.util.Locale.US, "%.2f", total));
             }

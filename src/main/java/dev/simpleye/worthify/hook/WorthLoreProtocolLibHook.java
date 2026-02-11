@@ -115,7 +115,7 @@ public final class WorthLoreProtocolLibHook {
 
         Material type = stack.getType();
         double unit = plugin.getWorthManager().getUnitPrice(type);
-        double total = unit * stack.getAmount();
+        double total = plugin.applyWorthMultiplier(type, unit * stack.getAmount());
 
         FileConfiguration cfg = plugin.getConfigManager().getMainConfig();
         boolean allowUnsellable = cfg.getBoolean("worth_lore.add_to_unsellable_items", false);

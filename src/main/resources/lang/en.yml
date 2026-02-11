@@ -1,3 +1,5 @@
+# Lang : EN
+
 errors:
   players_only: "&cPlayers only."
   economy_unavailable: "&cEconomy is not available."
@@ -11,6 +13,12 @@ worthify:
     - "&7/worthify help &f- Show this help"
     - "&7/worthify version &f- Show plugin version"
     - "&7/worthify reload &f- Reload configs"
+
+update:
+  available:
+    - "&eA new &6Worthify &eupdate is available."
+    - "&7Current: &f{current} &8| &7Latest: &a{latest}"
+    - "&7Download: &b{url}"
 
 balance:
   self: "&aBalance: &b${balance}"

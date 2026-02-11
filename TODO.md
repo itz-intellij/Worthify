@@ -6,8 +6,6 @@
 
 ## Working On It
 
-- [ ] Add command tab-completion
-- [ ] Add more guardrails (validate worth values, prevent negatives)
 - [ ] Ensure every command returns consistent usage + permission errors
 - [ ] Add config validation + safe defaults (avoid missing config keys)
 - [ ] Add categories and sorting to `/worth` GUI
@@ -19,6 +17,7 @@
 
 ## Done :)
 
+- [ X ] Add more guardrails (validate worth values, prevent negatives)
 - [ X ] Add `/worthify version` and `/worthify help`
 - [ X ] Add `worthify.*` permission (optional) for admins
 - [ X ] Add better messages + configurable message file

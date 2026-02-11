@@ -1,6 +1,14 @@
+# Prices.yml
+# Author : YE / S1mple-Ye
+# Source Code : https://github.com/S1mple-YE/Worthify
+# Modrinth : https://modrinth.com/plugin/worthify
+
 # =========================
 # Items - 1.21.4
-# =========================
+# this items calculated depends on other items like if kelp = 1$
+# the block gonna worth 9$ all this can modified by You
+# and thanks For Support Me By Donwloading The Plugin
+#====================
 prices:
   ACACIA_BOAT: 20
   ACACIA_BUTTON: 2

@@ -106,7 +106,8 @@ public final class WorthGuiManager {
         int end = Math.min(entries.size(), start + perPage);
         for (int idx = start; idx < end; idx++) {
             int slot = CONTENT_SLOTS[idx - start];
-            inv.setItem(slot, worthItem(entries.get(idx).getKey(), entries.get(idx).getValue()));
+            double unit = entries.get(idx).getValue();
+            inv.setItem(slot, worthItem(entries.get(idx).getKey(), plugin.applyWorthMultiplier(entries.get(idx).getKey(), unit)));
         }
 
         ConfigurationSection backSec = guiCfg != null ? guiCfg.getConfigurationSection("navigation.back") : null;

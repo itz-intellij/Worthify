@@ -1,0 +1,57 @@
+# Lang : TR
+# This Could Be Not accurated so please if you you see a mistake
+# open a pull request on github or open issue on github please
+
+errors:
+  players_only: "&cSadece oyuncular."
+  economy_unavailable: "&cEkonomi kullanılamıyor."
+
+worthify:
+  reloaded: "&aWorthify yeniden yüklendi."
+  usage: "&cKullanım: /worthify <help|version|reload>"
+  version: "&aWorthify v{version}"
+  help:
+    - "&aWorthify Komutları:"
+    - "&7/worthify help &f- Bu yardımı göster"
+    - "&7/worthify version &f- Eklenti sürümünü göster"
+    - "&7/worthify reload &f- Yapılandırmaları yeniden yükle"
+
+update:
+  available:
+    - "&eYeni bir &6Worthify &egüncellemesi mevcut."
+    - "&7Mevcut: &f{current} &8| &7En son: &a{latest}"
+    - "&7İndir: &b{url}"
+
+balance:
+  self: "&aBakiye: &b${balance}"
+
+pay:
+  usage: "&cKullanım: /pay <player> <amount>"
+  player_not_found: "&cOyuncu bulunamadı (çevrimiçi olmalı): {player}"
+  cannot_pay_self: "&cKendine ödeme yapamazsın."
+  invalid_amount: "&cGeçersiz miktar: {amount}"
+  amount_must_be_positive: "&cMiktar > 0 olmalıdır"
+  not_enough: "&cYeterli paran yok. Bakiye: ${balance}"
+  failed: "&cÖdeme başarısız."
+  sent: "&a&f{player}&a oyuncusuna ${amount} gönderdin."
+  received: "&a&f{player}&a oyuncusundan ${amount} aldın."
+
+sell:
+  usage: "&cKullanım: /sell [hand|all]"
+  nothing_to_sell: "&cSatılacak bir şey yok."
+  sold: "&a{amount} eşya ${total} karşılığında satıldı."
+
+sellhistory:
+  usage: "&cKullanım: /sellhistory [page]"
+
+worth:
+  hand_empty: "&cElinde hiçbir şey yok."
+  no_worth: "&e&f{item}&e için değer ayarlanmamış."
+  hand_value: "&a&f{item}&a değeri: &b${unit} &7adet &8(x{amount})&a = &b${total}"
+
+topbal:
+  usage_page: "&cKullanım: /topbal [page]"
+  usage_page_limit: "&cKullanım: /topbal [page] [limit]"
+  header: "&6En Yüksek Bakiyeler:"
+  entry: "&e#{rank} &f{name}&7 - &b${balance}"
+  empty: "&7Henüz bakiye yok."

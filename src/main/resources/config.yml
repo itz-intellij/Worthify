@@ -1,3 +1,8 @@
+# config.yml
+# Author : YE / S1mple-Ye
+# Source Code : https://github.com/S1mple-YE/Worthify
+# Modrinth : https://modrinth.com/plugin/worthify
+
 worth_lore:
   enabled: true
   require_protocollib: true
@@ -5,6 +10,26 @@ worth_lore:
   line: "&7Worth: &a${worth}"
 
 language: en
+
+# Not Recommended to use its experamentel feature
+# So Please Dont Use it if you modify the orginal src so its on you
+update_checker:
+  enabled: true
+  modrinth_project: "worthify"
+  interval_minutes: 360
+  notify_on_join: true
+
+auto_updater:
+  enabled: false
+
+worth_multiplier:
+  enabled: false
+  value: 1.0
+  categories:
+    ores: 1.0
+    food: 1.0
+    seeds: 1.0
+  materials: {}
 
 economy:
   internal:

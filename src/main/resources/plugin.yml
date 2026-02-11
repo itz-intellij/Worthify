@@ -3,7 +3,8 @@ version: 1.0.0
 main: dev.simpleye.worthify.WorthifyPlugin
 author: "YE"
 discord: "._.ye"
-github: "https://github.com/itz-intellij/Worthify"
+github: "https://github.com/s1mple-ye/Worthify"
+modrinth: "https://modrinth.com/plugin/worthify"
 api-version: '1.21'
 folia-supported: true
 softdepend:
@@ -14,6 +15,11 @@ commands:
   sell:
     description: Sell items for money
     usage: /sell [hand|all]
+    permission: worthify.sell
+  multiplier:
+    description: View and edit worth multipliers (when enabled)
+    usage: /multiplier
+    aliases: [mult]
     permission: worthify.sell
   balance:
     description: View your balance
@@ -55,10 +61,13 @@ permissions:
     children:
       worthify.sell: true
       worthify.admin: true
+      worthify.update: true
       worth.delete: true
   worthify.sell:
     default: true
   worthify.admin:
+    default: op
+  worthify.update:
     default: op
   worth.delete:
     default: op

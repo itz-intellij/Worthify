@@ -1,0 +1,57 @@
+# Lang : AR
+# This Could Be Not accurated so please if you you see a mistake
+# open a pull request on github or open issue on github please
+
+errors:
+  players_only: "&cللاعبين فقط."
+  economy_unavailable: "&cالاقتصاد غير متاح."
+
+worthify:
+  reloaded: "&aتمت إعادة تحميل Worthify."
+  usage: "&cالاستخدام: /worthify <help|version|reload>"
+  version: "&aWorthify v{version}"
+  help:
+    - "&aأوامر Worthify:"
+    - "&7/worthify help &f- عرض هذه المساعدة"
+    - "&7/worthify version &f- عرض إصدار الإضافة"
+    - "&7/worthify reload &f- إعادة تحميل الإعدادات"
+
+update:
+  available:
+    - "&eيتوفر تحديث جديد لإضافة &6Worthify&e."
+    - "&7الحالي: &f{current} &8| &7الأحدث: &a{latest}"
+    - "&7التنزيل: &b{url}"
+
+balance:
+  self: "&aالرصيد: &b${balance}"
+
+pay:
+  usage: "&cالاستخدام: /pay <player> <amount>"
+  player_not_found: "&cلم يتم العثور على اللاعب (يجب أن يكون متصلاً): {player}"
+  cannot_pay_self: "&cلا يمكنك الدفع لنفسك."
+  invalid_amount: "&cمبلغ غير صالح: {amount}"
+  amount_must_be_positive: "&cيجب أن يكون المبلغ > 0"
+  not_enough: "&cليس لديك مال كافٍ. الرصيد: ${balance}"
+  failed: "&cفشلت عملية الدفع."
+  sent: "&aلقد دفعت لـ &f{player}&a مبلغ ${amount}."
+  received: "&aلقد استلمت ${amount} من &f{player}&a."
+
+sell:
+  usage: "&cالاستخدام: /sell [hand|all]"
+  nothing_to_sell: "&cلا يوجد شيء لبيعه."
+  sold: "&aتم بيع {amount} عنصر مقابل ${total}."
+
+sellhistory:
+  usage: "&cالاستخدام: /sellhistory [page]"
+
+worth:
+  hand_empty: "&cأنت لا تحمل أي شيء."
+  no_worth: "&eلا توجد قيمة محددة لـ &f{item}&e."
+  hand_value: "&aقيمة &f{item}&a: &b${unit} &7لكل واحد &8(x{amount})&a = &b${total}"
+
+topbal:
+  usage_page: "&cالاستخدام: /topbal [page]"
+  usage_page_limit: "&cالاستخدام: /topbal [page] [limit]"
+  header: "&6أعلى الأرصدة:"
+  entry: "&e#{rank} &f{name}&7 - &b${balance}"
+  empty: "&7لا توجد أرصدة بعد."

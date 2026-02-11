@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Locale;
+import java.util.function.ToDoubleFunction;
 
 public final class SellService {
 
@@ -25,11 +26,17 @@ public final class SellService {
     private final WorthManager worthManager;
     private final EconomyHook economyHook;
     private final SellHistoryStore historyStore;
+    private final ToDoubleFunction<Material> worthMultiplier;
 
     public SellService(WorthManager worthManager, EconomyHook economyHook, SellHistoryStore historyStore) {
+        this(worthManager, economyHook, historyStore, m -> 1.0D);
+    }
+
+    public SellService(WorthManager worthManager, EconomyHook economyHook, SellHistoryStore historyStore, ToDoubleFunction<Material> worthMultiplier) {
         this.worthManager = worthManager;
         this.economyHook = economyHook;
         this.historyStore = historyStore;
+        this.worthMultiplier = worthMultiplier == null ? m -> 1.0D : worthMultiplier;
     }
 
     public SellResult sellHand(Player player) {
@@ -44,7 +51,7 @@ public final class SellService {
         }
 
         double total = calculateStackWorth(item, 0);
-        if (total <= 0.0D) {
+        if (!(total > 0.0D) || Double.isNaN(total) || Double.isInfinite(total)) {
             return SellResult.nothingToSell();
         }
 
@@ -80,7 +87,7 @@ public final class SellService {
             }
 
             double stackWorth = calculateStackWorth(item, 0);
-            if (stackWorth <= 0.0D) {
+            if (!(stackWorth > 0.0D) || Double.isNaN(stackWorth) || Double.isInfinite(stackWorth)) {
                 continue;
             }
 
@@ -96,6 +103,10 @@ public final class SellService {
         }
 
         if (soldAmount <= 0) {
+            return SellResult.nothingToSell();
+        }
+
+        if (!(total > 0.0D) || Double.isNaN(total) || Double.isInfinite(total)) {
             return SellResult.nothingToSell();
         }
 
@@ -237,12 +248,19 @@ public final class SellService {
             return 0.0D;
         }
 
-        double perItem = worthManager.getUnitPrice(stack.getType());
+        Material type = stack.getType();
+        double perItem = worthManager.getUnitPrice(type);
         perItem += calculateContainerBonusPerItem(stack, depth);
         if (perItem <= 0.0D) {
             return 0.0D;
         }
-        return perItem * stack.getAmount();
+
+        double mult = getMultiplier(type);
+        double total = (perItem * mult) * stack.getAmount();
+        if (!(total > 0.0D) || Double.isNaN(total) || Double.isInfinite(total)) {
+            return 0.0D;
+        }
+        return total;
     }
 
     private double calculateContainerBonusPerItem(ItemStack stack, int depth) {
@@ -263,6 +281,19 @@ public final class SellService {
             contentsWorth += calculateStackWorth(inside, depth + 1);
         }
         return contentsWorth;
+    }
+
+    private double getMultiplier(Material material) {
+        double mult;
+        try {
+            mult = worthMultiplier.applyAsDouble(material);
+        } catch (Exception ignored) {
+            mult = 1.0D;
+        }
+        if (!(mult > 0.0D) || Double.isNaN(mult) || Double.isInfinite(mult)) {
+            return 1.0D;
+        }
+        return mult;
     }
 
     public static String formatMoney(double amount) {
