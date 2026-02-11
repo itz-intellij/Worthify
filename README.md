@@ -115,6 +115,24 @@ auto_updater:
   enabled: false
 ```
 
+
+## GitHub Wiki Starter (for first-time users)
+
+If you are new to GitHub wikis, this repo includes starter pages in `docs/wiki/`.
+
+### Enable and publish your wiki
+
+1. Open your GitHub repository page.
+2. Go to **Settings → Features** and enable **Wikis**.
+3. Open the new **Wiki** tab.
+4. Create the **Home** page and copy content from `docs/wiki/Home.md`.
+5. Create additional pages matching these filenames:
+   - `Getting-Started.md`
+   - `Commands.md`
+   - `Configuration.md`
+
+Tip: In GitHub wiki links, spaces become dashes. For example, `Getting Started` becomes `Getting-Started`.
+
 ## Building
 
 This project uses Gradle.
