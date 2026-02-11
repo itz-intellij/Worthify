@@ -1,0 +1,60 @@
+# Lang : ES
+
+errors:
+  players_only: "&cSolo jugadores."
+  economy_unavailable: "&cLa economía no está disponible."
+
+worthify:
+  reloaded: "&aWorthify recargado."
+  usage: "&cUso: /worthify <help|version|reload>"
+  version: "&aWorthify v{version}"
+  help:
+    - "&aComandos de Worthify:"
+    - "&7/worthify help &f- Mostrar esta ayuda"
+    - "&7/worthify version &f- Mostrar la versión del plugin"
+    - "&7/worthify reload &f- Recargar configuraciones"
+
+update:
+  available:
+    - "&eHay una nueva actualización de &6Worthify &edisponible."
+    - "&7Actual: &f{current} &8| &7Última: &a{latest}"
+    - "&7Descargar: &b{url}"
+
+balance:
+  self: "&aSaldo: &b${balance}"
+
+pay:
+  usage: "&cUso: /pay <jugador> <cantidad>"
+  disabled: "&cLos pagos están deshabilitados."
+  cooldown: "&cDebes esperar {seconds}s antes de pagar de nuevo."
+  player_not_found: "&cJugador no encontrado (debe estar en línea): {player}"
+  cannot_pay_self: "&cNo puedes pagarte a ti mismo."
+  invalid_amount: "&cCantidad inválida: {amount}"
+  amount_must_be_positive: "&cLa cantidad debe ser > 0"
+  target_disabled: "&c{player} no está aceptando pagos."
+  not_enough: "&cNo tienes suficiente dinero. Saldo: ${balance}"
+  failed: "&cEl pago falló."
+  sent: "&aHas pagado a &f{player}&a ${amount}."
+  received: "&aHas recibido ${amount} de &f{player}&a."
+  toggle_on: "&aAhora puedes recibir pagos."
+  toggle_off: "&cYa no recibirás pagos."
+
+sell:
+  usage: "&cUso: /sell [hand|all]"
+  nothing_to_sell: "&cNada para vender."
+  sold: "&aVendiste {amount} objetos por ${total}."
+
+sellhistory:
+  usage: "&cUso: /sellhistory [page]"
+
+worth:
+  hand_empty: "&cNo estás sosteniendo nada."
+  no_worth: "&eNo hay valor establecido para &f{item}&e."
+  hand_value: "&aValor de &f{item}&a: &b${unit} &7cada uno &8(x{amount})&a = &b${total}"
+
+topbal:
+  usage_page: "&cUso: /topbal [page]"
+  usage_page_limit: "&cUso: /topbal [page] [limit]"
+  header: "&6Mejores saldos:"
+  entry: "&e#{rank} &f{name}&7 - &b${balance}"
+  empty: "&7Aún no hay saldos."
