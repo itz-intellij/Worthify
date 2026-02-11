@@ -42,7 +42,7 @@ public final class SetWorthCommand implements CommandExecutor {
             return true;
         }
 
-        if (value < 0.0D) {
+        if (Double.isNaN(value) || Double.isInfinite(value) || value < 0.0D) {
             sender.sendMessage(ChatColor.RED + "Worth must be >= 0");
             return true;
         }

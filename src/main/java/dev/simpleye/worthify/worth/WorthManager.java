@@ -36,6 +36,13 @@ public final class WorthManager {
                     continue;
                 }
 
+                if (Double.isNaN(value) || Double.isInfinite(value) || value < 0.0D) {
+                    if (warnLogger != null) {
+                        warnLogger.accept("Invalid price for material '" + entry.getKey() + "': " + value + " (must be a finite number >= 0)");
+                    }
+                    continue;
+                }
+
                 next.put(material, value);
             }
         }
@@ -49,7 +56,13 @@ public final class WorthManager {
 
     public double getUnitPrice(Material material) {
         Double value = prices.get(material);
-        return value == null ? 0.0D : value;
+        if (value == null) {
+            return 0.0D;
+        }
+        if (Double.isNaN(value) || Double.isInfinite(value) || value < 0.0D) {
+            return 0.0D;
+        }
+        return value;
     }
 
     public Map<Material, Double> getPricesSnapshot() {

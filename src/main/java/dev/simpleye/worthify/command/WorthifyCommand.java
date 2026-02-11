@@ -6,6 +6,11 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.file.YamlConfiguration;
+
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 
 public final class WorthifyCommand implements CommandExecutor {
 
@@ -38,6 +43,22 @@ public final class WorthifyCommand implements CommandExecutor {
             } else {
                 sender.sendMessage(ChatColor.GREEN + "Worthify v" + version);
             }
+
+            String author = plugin.getDescription().getAuthors().isEmpty() ? plugin.getDescription().getName() : String.join(", ", plugin.getDescription().getAuthors());
+            String discord = readPluginYmlValue("discord");
+            String github = readPluginYmlValue("github");
+            String modrinth = readPluginYmlValue("modrinth");
+
+            sender.sendMessage(ChatColor.GRAY + "Author: " + ChatColor.WHITE + author);
+            if (discord != null && !discord.isBlank()) {
+                sender.sendMessage(ChatColor.GRAY + "Discord: " + ChatColor.WHITE + discord);
+            }
+            if (github != null && !github.isBlank()) {
+                sender.sendMessage(ChatColor.GRAY + "GitHub: " + ChatColor.WHITE + github);
+            }
+            if (modrinth != null && !modrinth.isBlank()) {
+                sender.sendMessage(ChatColor.GRAY + "Modrinth: " + ChatColor.WHITE + modrinth);
+            }
             return true;
         }
 
@@ -57,5 +78,21 @@ public final class WorthifyCommand implements CommandExecutor {
             sender.sendMessage(ChatColor.RED + "Usage: /worthify reload");
         }
         return true;
+    }
+
+    private String readPluginYmlValue(String key) {
+        if (key == null || key.isEmpty()) {
+            return null;
+        }
+
+        try (InputStream in = plugin.getResource("plugin.yml")) {
+            if (in == null) {
+                return null;
+            }
+            YamlConfiguration cfg = YamlConfiguration.loadConfiguration(new InputStreamReader(in, StandardCharsets.UTF_8));
+            return cfg.getString(key, null);
+        } catch (Exception ignored) {
+            return null;
+        }
     }
 }
