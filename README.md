@@ -70,7 +70,7 @@ The built jar will be in:
 ## Support / Links
 
 - **Issues**: *(https://github.com/S1mple-ye/Worthify/issues)*
-- **Modrinth**: *(https://modrinth.com/project/worthify)*
+- **Modrinth**: *(https://modrinth.com/plugin/worthify)*
 
 ## License
 
