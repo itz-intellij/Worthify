@@ -39,6 +39,10 @@ commands:
     description: Pay another player money
     usage: /pay <player> <amount>
     permission: worthify.sell
+  paytoggle:
+    description: Toggle whether you can receive payments
+    usage: /paytoggle
+    permission: worthify.sell
   setworth:
     description: Set worth value for the item in your main hand
     usage: /setworth <number>

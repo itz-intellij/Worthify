@@ -2,7 +2,7 @@ package dev.simpleye.worthify.command;
 
 import dev.simpleye.worthify.WorthifyPlugin;
 import dev.simpleye.worthify.message.MessageService;
-import dev.simpleye.worthify.sell.SellService;
+import dev.simpleye.worthify.util.MoneyUtil;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -40,9 +40,9 @@ public final class BalanceCommand implements CommandExecutor {
 
         double balance = plugin.getEconomyHook().getBalance(player);
         if (messages != null) {
-            messages.send(sender, "balance.self", "balance", SellService.formatMoney(balance));
+            messages.send(sender, "balance.self", "balance", MoneyUtil.format(balance));
         } else {
-            sender.sendMessage(ChatColor.GREEN + "Balance: " + ChatColor.AQUA + "$" + SellService.formatMoney(balance));
+            sender.sendMessage(ChatColor.GREEN + "Balance: " + ChatColor.AQUA + "$" + MoneyUtil.format(balance));
         }
         return true;
     }

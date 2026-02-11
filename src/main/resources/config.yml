@@ -35,3 +35,9 @@ economy:
   internal:
     enabled: true
     starting_balance: 0.0
+
+pay:
+  enabled: true
+  cooldown_seconds: 0
+  receive_toggle:
+    op_bypass: true

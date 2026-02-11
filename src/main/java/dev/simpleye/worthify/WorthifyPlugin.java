@@ -5,6 +5,7 @@ import dev.simpleye.worthify.command.BalanceCommand;
 import dev.simpleye.worthify.command.DeleteWorthCommand;
 import dev.simpleye.worthify.command.NotImplementedCommand;
 import dev.simpleye.worthify.command.PayCommand;
+import dev.simpleye.worthify.command.PayToggleCommand;
 import dev.simpleye.worthify.command.SellCommand;
 import dev.simpleye.worthify.command.SellHistoryCommand;
 import dev.simpleye.worthify.command.SetWorthCommand;
@@ -28,6 +29,7 @@ import dev.simpleye.worthify.listener.WorthGuiListener;
 import dev.simpleye.worthify.listener.MultiplierGuiListener;
 import dev.simpleye.worthify.message.MessageService;
 import dev.simpleye.worthify.command.MultiplierCommand;
+import dev.simpleye.worthify.pay.PaySettingsStore;
 import dev.simpleye.worthify.update.ModrinthUpdateChecker;
 import dev.simpleye.worthify.update.UpdateNotifyListener;
 import dev.simpleye.worthify.sell.SellService;
@@ -54,6 +56,7 @@ public final class WorthifyPlugin extends JavaPlugin {
     private WorthLoreProtocolLibHook worthLoreProtocolLibHook;
     private MessageService messages;
     private ModrinthUpdateChecker updateChecker;
+    private PaySettingsStore paySettingsStore;
 
     @Override
     public void onEnable() {
@@ -61,6 +64,7 @@ public final class WorthifyPlugin extends JavaPlugin {
         this.worthManager = new WorthManager();
         this.economyHook = new EconomyHook(this);
         this.sellHistoryStore = new SellHistoryStore(this, Integer.MAX_VALUE);
+        this.paySettingsStore = new PaySettingsStore(this);
 
         this.serverVersion = ServerVersion.detect();
         this.materialResolver = new MaterialResolver(this.serverVersion);
@@ -74,6 +78,7 @@ public final class WorthifyPlugin extends JavaPlugin {
         this.worthManager.reload(this.configManager.getPricesConfig(), this.materialResolver, msg -> getLogger().warning(msg));
         this.economyHook.hook();
         this.sellHistoryStore.reload();
+        this.paySettingsStore.reload();
 
         this.sellService = new SellService(this.worthManager, this.economyHook, this.sellHistoryStore, m -> getWorthMultiplier(m));
         this.sellOnCloseGuiManager = new SellOnCloseGuiManager(this);
@@ -87,6 +92,7 @@ public final class WorthifyPlugin extends JavaPlugin {
         registerCommand("topbal", new TopBalanceCommand(this, this.topBalGuiManager));
         registerCommand("deleteworth", new DeleteWorthCommand(this));
         registerCommand("pay", new PayCommand(this));
+        registerCommand("paytoggle", new PayToggleCommand(this));
         registerCommand("setworth", new SetWorthCommand(this));
         registerCommand("worthify", new WorthifyCommand(this));
         registerCommand("worth", new WorthCommand(this, this.worthGuiManager));
@@ -105,6 +111,10 @@ public final class WorthifyPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new UpdateNotifyListener(this), this);
 
         startWorthLoreHookIfEnabled();
+    }
+
+    public PaySettingsStore getPaySettingsStore() {
+        return paySettingsStore;
     }
 
     public double getWorthMultiplier() {
@@ -290,6 +300,9 @@ public final class WorthifyPlugin extends JavaPlugin {
         this.worthManager.reload(this.configManager.getPricesConfig(), this.materialResolver, msg -> getLogger().warning(msg));
         this.economyHook.hook();
         this.sellHistoryStore.reload();
+        if (this.paySettingsStore != null) {
+            this.paySettingsStore.reload();
+        }
 
         if (updateChecker != null) {
             updateChecker.stop();
