@@ -28,7 +28,9 @@ import dev.simpleye.worthify.listener.TopBalGuiListener;
 import dev.simpleye.worthify.listener.WorthGuiListener;
 import dev.simpleye.worthify.listener.MultiplierGuiListener;
 import dev.simpleye.worthify.message.MessageService;
+import dev.simpleye.worthify.placeholder.WorthifyPlaceholders;
 import dev.simpleye.worthify.command.MultiplierCommand;
+import dev.simpleye.worthify.command.TakeMoneyCommand;
 import dev.simpleye.worthify.pay.PaySettingsStore;
 import dev.simpleye.worthify.update.ModrinthUpdateChecker;
 import dev.simpleye.worthify.update.UpdateNotifyListener;
@@ -98,6 +100,7 @@ public final class WorthifyPlugin extends JavaPlugin {
         registerCommand("worth", new WorthCommand(this, this.worthGuiManager));
         registerCommand("sellhistory", new SellHistoryCommand(this.sellHistoryGuiManager, this.messages));
         registerCommand("multiplier", new MultiplierCommand(this, this.multiplierGuiManager));
+        registerCommand("takemoney", new TakeMoneyCommand(this));
 
         NotImplementedCommand notImplemented = new NotImplementedCommand();
 
@@ -111,6 +114,20 @@ public final class WorthifyPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new UpdateNotifyListener(this), this);
 
         startWorthLoreHookIfEnabled();
+
+        startPlaceholdersIfAvailable();
+    }
+
+    private void startPlaceholdersIfAvailable() {
+        if (getServer().getPluginManager().getPlugin("PlaceholderAPI") == null) {
+            return;
+        }
+
+        try {
+            new WorthifyPlaceholders(this).register();
+        } catch (Throwable t) {
+            getLogger().warning("Failed to register PlaceholderAPI expansion: " + t.getMessage());
+        }
     }
 
     public PaySettingsStore getPaySettingsStore() {

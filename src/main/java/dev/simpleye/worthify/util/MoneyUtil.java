@@ -56,4 +56,37 @@ public final class MoneyUtil {
         }
         return String.format(Locale.US, "%,.2f", amount);
     }
+
+    public static String formatPlain(double amount) {
+        if (Double.isNaN(amount) || Double.isInfinite(amount)) {
+            return "0.00";
+        }
+        return String.format(Locale.US, "%.2f", amount);
+    }
+
+    public static String formatShort(double amount) {
+        if (Double.isNaN(amount) || Double.isInfinite(amount)) {
+            return "0.00";
+        }
+
+        double abs = Math.abs(amount);
+        String suffix = "";
+        double value = amount;
+
+        if (abs >= 1_000_000_000_000.0D) {
+            suffix = "T";
+            value = amount / 1_000_000_000_000.0D;
+        } else if (abs >= 1_000_000_000.0D) {
+            suffix = "B";
+            value = amount / 1_000_000_000.0D;
+        } else if (abs >= 1_000_000.0D) {
+            suffix = "M";
+            value = amount / 1_000_000.0D;
+        } else if (abs >= 1_000.0D) {
+            suffix = "K";
+            value = amount / 1_000.0D;
+        }
+
+        return String.format(Locale.US, "%.2f%s", value, suffix);
+    }
 }

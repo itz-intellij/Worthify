@@ -1,5 +1,5 @@
 name: Worthify
-version: 1.0.0
+version: 1.0.1
 main: dev.simpleye.worthify.WorthifyPlugin
 author: "YE"
 discord: "._.ye"
@@ -59,17 +59,24 @@ commands:
     description: Worthify admin command
     usage: /worthify <help|version|reload>
     permission: worthify.admin
+  takemoney:
+    description: Take money from a player
+    usage: /takemoney <player> <amount>
+    permission: worthify.takemoney
 permissions:
   worthify.*:
     default: op
     children:
       worthify.sell: true
       worthify.admin: true
+      worthify.takemoney: true
       worthify.update: true
       worth.delete: true
   worthify.sell:
     default: true
   worthify.admin:
+    default: op
+  worthify.takemoney:
     default: op
   worthify.update:
     default: op

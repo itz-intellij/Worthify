@@ -3,6 +3,7 @@
 errors:
   players_only: "&cPlayers only."
   economy_unavailable: "&cEconomy is not available."
+  no_permission: "&cNo permission."
 
 worthify:
   reloaded: "&aWorthify reloaded."
@@ -38,6 +39,15 @@ pay:
   received: "&aYou received ${amount} from &f{player}&a."
   toggle_on: "&aYou can now receive payments."
   toggle_off: "&cYou will no longer receive payments."
+
+takemoney:
+  usage: "&cUsage: /takemoney <player> <amount>"
+  player_not_found: "&cPlayer not found: {player}"
+  invalid_amount: "&cInvalid amount: {amount}"
+  amount_must_be_positive: "&cAmount must be > 0"
+  nothing_to_take: "&cNothing to take from {player}."
+  failed: "&cFailed to take money from {player}."
+  taken: "&aTook &f${amount}&a from &f{player}&a."
 
 sell:
   usage: "&cUsage: /sell [hand|all]"
