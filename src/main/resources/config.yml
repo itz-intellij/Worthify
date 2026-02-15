@@ -36,6 +36,9 @@ economy:
     enabled: true
     starting_balance: 0.0
 
+  vault:
+    override_provider: false
+
 pay:
   enabled: true
   cooldown_seconds: 0

@@ -21,6 +21,9 @@ public final class WorthManager {
                 Material material = materialResolver == null ? Material.matchMaterial(entry.getKey()) : materialResolver.resolve(entry.getKey());
                 if (material == null) {
                     if (warnLogger != null) {
+                        if (materialResolver != null && materialResolver.isKnownButUnsupported(entry.getKey())) {
+                            continue;
+                        }
                         String aliasTarget = materialResolver == null ? null : materialResolver.getAliasTarget(entry.getKey());
                         if (aliasTarget != null) {
                             warnLogger.accept("Unknown material in prices.yml: '" + entry.getKey() + "' (alias tried: '" + aliasTarget + "')");

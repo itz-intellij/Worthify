@@ -47,6 +47,9 @@ public final class WorthLoreProtocolLibHook {
                 }
 
                 PacketContainer packet = event.getPacket();
+                if (isPlayerInventoryWindow(packet)) {
+                    return;
+                }
                 List<ItemStack> items = packet.getItemListModifier().read(0);
                 if (items == null || items.isEmpty()) {
                     return;
@@ -69,6 +72,9 @@ public final class WorthLoreProtocolLibHook {
                 }
 
                 PacketContainer packet = event.getPacket();
+                if (isPlayerInventoryWindow(packet)) {
+                    return;
+                }
                 ItemStack stack = packet.getItemModifier().read(0);
                 packet.getItemModifier().write(0, withWorthLore(stack));
             }
@@ -115,20 +121,20 @@ public final class WorthLoreProtocolLibHook {
 
         Material type = stack.getType();
         double unit = plugin.getWorthManager().getUnitPrice(type);
-        double total = plugin.applyWorthMultiplier(type, unit * stack.getAmount());
+        double shown = plugin.applyWorthMultiplier(type, unit);
 
         FileConfiguration cfg = plugin.getConfigManager().getMainConfig();
         boolean allowUnsellable = cfg.getBoolean("worth_lore.add_to_unsellable_items", false);
-        if (!allowUnsellable && total <= 0.0D) {
+        if (!allowUnsellable && shown <= 0.0D) {
             return stack;
         }
 
-        if (total <= 0.0D) {
+        if (shown <= 0.0D) {
             return stack;
         }
 
         String template = cfg.getString("worth_lore.line", "&7Worth: &a${worth}");
-        String worthText = SellService.formatMoney(total);
+        String worthText = SellService.formatMoney(shown);
         String line = ColorUtil.colorize(template
                 .replace("${worth}", worthText)
                 .replace("{worth}", worthText));
@@ -143,7 +149,6 @@ public final class WorthLoreProtocolLibHook {
 
         List<String> lore = meta.getLore();
         List<String> nextLore = lore == null ? new ArrayList<>() : new ArrayList<>(lore);
-    // alr here we go
         if (marker != null && !marker.isEmpty()) {
             for (int i = 0; i < nextLore.size(); i++) {
                 String existing = nextLore.get(i);
@@ -183,5 +188,17 @@ public final class WorthLoreProtocolLibHook {
             return null;
         }
         return stripped.trim().toLowerCase();
+    }
+
+    private static boolean isPlayerInventoryWindow(PacketContainer packet) {
+        if (packet == null) {
+            return false;
+        }
+        try {
+            Integer windowId = packet.getIntegers().read(0);
+            return windowId != null && windowId == 0;
+        } catch (Exception ignored) {
+            return false;
+        }
     }
 }

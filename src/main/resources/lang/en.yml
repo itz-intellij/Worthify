@@ -49,6 +49,14 @@ takemoney:
   failed: "&cFailed to take money from {player}."
   taken: "&aTook &f${amount}&a from &f{player}&a."
 
+givemoney:
+  usage: "&cUsage: /givemoney <player> <amount>"
+  player_not_found: "&cPlayer not found: {player}"
+  invalid_amount: "&cInvalid amount: {amount}"
+  amount_must_be_positive: "&cAmount must be > 0"
+  failed: "&cFailed to give money to {player}."
+  given: "&aGave &f${amount}&a to &f{player}&a."
+
 sell:
   usage: "&cUsage: /sell [hand|all]"
   nothing_to_sell: "&cNothing to sell."
@@ -63,8 +71,8 @@ worth:
   hand_value: "&aWorth of &f{item}&a: &b${unit} &7each &8(x{amount})&a = &b${total}"
 
 topbal:
-  usage_page: "&cUsage: /topbal [page]"
-  usage_page_limit: "&cUsage: /topbal [page] [limit]"
+  usage_page: "&cUsage: /baltop [page]"
+  usage_page_limit: "&cUsage: /baltop [page] [limit]"
   header: "&6Top Balances:"
   entry: "&e#{rank} &f{name}&7 - &b${balance}"
   empty: "&7No balances yet."

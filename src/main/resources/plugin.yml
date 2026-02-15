@@ -7,6 +7,7 @@ github: "https://github.com/s1mple-ye/Worthify"
 modrinth: "https://modrinth.com/plugin/worthify"
 api-version: '1.21'
 folia-supported: true
+is-folia: true
 softdepend:
   - Vault
   - PlaceholderAPI
@@ -26,10 +27,10 @@ commands:
     usage: /balance
     aliases: [bal]
     permission: worthify.sell
-  topbal:
+  baltop:
     description: View the richest players (internal economy)
-    usage: /topbal [limit]
-    aliases: [top]
+    usage: /baltop [limit]
+    aliases: [topbal, topbalance, balancetop, top]
     permission: worthify.sell
   deleteworth:
     description: Reset a player's internal balance
@@ -63,6 +64,10 @@ commands:
     description: Take money from a player
     usage: /takemoney <player> <amount>
     permission: worthify.takemoney
+  givemoney:
+    description: Give money to a player
+    usage: /givemoney <player> <amount>
+    permission: worthify.givemoney
 permissions:
   worthify.*:
     default: op
@@ -70,6 +75,7 @@ permissions:
       worthify.sell: true
       worthify.admin: true
       worthify.takemoney: true
+      worthify.givemoney: true
       worthify.update: true
       worth.delete: true
   worthify.sell:
@@ -77,6 +83,8 @@ permissions:
   worthify.admin:
     default: op
   worthify.takemoney:
+    default: op
+  worthify.givemoney:
     default: op
   worthify.update:
     default: op

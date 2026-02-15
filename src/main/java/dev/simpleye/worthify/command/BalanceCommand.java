@@ -40,9 +40,9 @@ public final class BalanceCommand implements CommandExecutor {
 
         double balance = plugin.getEconomyHook().getBalance(player);
         if (messages != null) {
-            messages.send(sender, "balance.self", "balance", MoneyUtil.format(balance));
+            messages.send(sender, "balance.self", "balance", MoneyUtil.formatShort(balance));
         } else {
-            sender.sendMessage(ChatColor.GREEN + "Balance: " + ChatColor.AQUA + "$" + MoneyUtil.format(balance));
+            sender.sendMessage(ChatColor.GREEN + "Balance: " + ChatColor.AQUA + "$" + MoneyUtil.formatShort(balance));
         }
         return true;
     }

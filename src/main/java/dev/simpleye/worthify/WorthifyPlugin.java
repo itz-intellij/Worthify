@@ -31,11 +31,14 @@ import dev.simpleye.worthify.message.MessageService;
 import dev.simpleye.worthify.placeholder.WorthifyPlaceholders;
 import dev.simpleye.worthify.command.MultiplierCommand;
 import dev.simpleye.worthify.command.TakeMoneyCommand;
+import dev.simpleye.worthify.command.GiveMoneyCommand;
 import dev.simpleye.worthify.pay.PaySettingsStore;
 import dev.simpleye.worthify.update.ModrinthUpdateChecker;
 import dev.simpleye.worthify.update.UpdateNotifyListener;
 import dev.simpleye.worthify.sell.SellService;
 import dev.simpleye.worthify.worth.WorthManager;
+import org.bstats.bukkit.Metrics;
+import org.bstats.charts.SimplePie;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.Material;
@@ -82,16 +85,24 @@ public final class WorthifyPlugin extends JavaPlugin {
         this.sellHistoryStore.reload();
         this.paySettingsStore.reload();
 
+        try {
+            Metrics metrics = new Metrics(this, 29561);
+            metrics.addCustomChart(new SimplePie("economy_mode", () -> this.economyHook != null && this.economyHook.isUsingInternalEconomy() ? "internal" : "vault"));
+            metrics.addCustomChart(new SimplePie("worth_lore_enabled", () -> this.configManager != null && this.configManager.getMainConfig().getBoolean("worth_lore.enabled", false) ? "true" : "false"));
+        } catch (Throwable ignored) {
+            // ignore
+        }
+// Guis
         this.sellService = new SellService(this.worthManager, this.economyHook, this.sellHistoryStore, m -> getWorthMultiplier(m));
         this.sellOnCloseGuiManager = new SellOnCloseGuiManager(this);
         this.worthGuiManager = new WorthGuiManager(this);
         this.sellHistoryGuiManager = new SellHistoryGuiManager(this);
         this.topBalGuiManager = new TopBalGuiManager(this);
         this.multiplierGuiManager = new MultiplierGuiManager(this);
-
+// Commands
         registerCommand("sell", new SellCommand(this.sellService, this.sellOnCloseGuiManager, this.messages));
         registerCommand("balance", new BalanceCommand(this));
-        registerCommand("topbal", new TopBalanceCommand(this, this.topBalGuiManager));
+        registerCommand("baltop", new TopBalanceCommand(this, this.topBalGuiManager));
         registerCommand("deleteworth", new DeleteWorthCommand(this));
         registerCommand("pay", new PayCommand(this));
         registerCommand("paytoggle", new PayToggleCommand(this));
@@ -101,6 +112,7 @@ public final class WorthifyPlugin extends JavaPlugin {
         registerCommand("sellhistory", new SellHistoryCommand(this.sellHistoryGuiManager, this.messages));
         registerCommand("multiplier", new MultiplierCommand(this, this.multiplierGuiManager));
         registerCommand("takemoney", new TakeMoneyCommand(this));
+        registerCommand("givemoney", new GiveMoneyCommand(this));
 
         NotImplementedCommand notImplemented = new NotImplementedCommand();
 

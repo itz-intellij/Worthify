@@ -1,4 +1,4 @@
-# Worthify
+ Worthify
 
 Worthify is a lightweight Paper plugin that assigns a configurable worth to items and lets players sell items for in-game currency.
 
@@ -11,6 +11,8 @@ Worthify is a lightweight Paper plugin that assigns a configurable worth to item
 - Optional client-side item tooltip worth line (requires ProtocolLib)
 - Optional Vault integration (uses your server economy if available)
 - Standalone internal economy fallback if Vault isn’t installed (`balances.yml`)
+- Worth multiplier system (global + category + per-material overrides)
+- Multiplier GUI (`/multiplier`) to view/edit category multipliers (only works when enabled)
 
 ## Commands
 
@@ -18,11 +20,13 @@ Worthify is a lightweight Paper plugin that assigns a configurable worth to item
   - Permission: `worthify.sell`
 - `/pay <player> <amount>`
   - Permission: `worthify.sell`
-  - Notes: amount must be > 0 and you must have enough money
 - `/worth [page]`
   - Permission: `worthify.sell`
 - `/sellhistory [page]`
   - Permission: `worthify.sell`
+- `/multiplier` (alias: `/mult`)
+  - Permission: `worthify.sell`
+  - Notes: Only opens when `worth_multiplier.enabled: true`. Everyone can view, but editing requires `worthify.admin`.
 - `/setworth <number>`
   - Permission: `worthify.admin`
 - `/worthify reload`
@@ -51,6 +55,10 @@ Worthify writes config files into `plugins/Worthify/`.
   - `economy.internal.starting_balance`: default balance for players not in `balances.yml`
   - `worth_lore.enabled`: enable worth tooltip injection (requires ProtocolLib)
   - `worth_lore.line`: format line (supports `{worth}` or `${worth}`)
+  - `worth_multiplier.enabled`: enables worth multiplier logic and the multiplier GUI
+  - `worth_multiplier.value`: global multiplier applied to all items
+  - `worth_multiplier.categories.*`: category multipliers (ores/food/seeds)
+  - `worth_multiplier.materials.*`: per-material multiplier overrides
 - `prices.yml`
   - Stores per-material prices under `prices.<MATERIAL_NAME>`
 - `sellhistory.yml`

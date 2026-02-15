@@ -59,6 +59,25 @@ final class BalanceStore {
         return balances.getOrDefault(player.getUniqueId(), defaultBalance);
     }
 
+    boolean hasAccount(OfflinePlayer player) {
+        if (player == null) {
+            return false;
+        }
+        return balances.containsKey(player.getUniqueId());
+    }
+
+    boolean ensureAccount(OfflinePlayer player, double defaultBalance) {
+        if (player == null) {
+            return false;
+        }
+        UUID uuid = player.getUniqueId();
+        if (balances.containsKey(uuid)) {
+            return true;
+        }
+        balances.put(uuid, Math.max(0.0D, defaultBalance));
+        return save();
+    }
+
     boolean withdraw(OfflinePlayer player, double amount, double defaultBalance) {
         if (player == null) {
             return false;
