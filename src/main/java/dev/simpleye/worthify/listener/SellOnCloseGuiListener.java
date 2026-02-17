@@ -2,6 +2,7 @@ package dev.simpleye.worthify.listener;
 
 import dev.simpleye.worthify.WorthifyPlugin;
 import dev.simpleye.worthify.gui.SellGuiHolder;
+import dev.simpleye.worthify.message.MessageService;
 import dev.simpleye.worthify.sell.SellProcessResult;
 import dev.simpleye.worthify.sell.SellResult;
 import dev.simpleye.worthify.sell.SellService;
@@ -46,21 +47,40 @@ public final class SellOnCloseGuiListener implements Listener {
             }
         }
 
+        MessageService messages = plugin.getMessages();
         if (result.economyMissing()) {
-            player.sendMessage(ChatColor.RED + "Economy is not available.");
+            if (messages != null) {
+                messages.send(player, "errors.economy_unavailable");
+            } else {
+                player.sendMessage(ChatColor.RED + "Economy is not available.");
+            }
             return;
         }
 
         if (!result.success()) {
             if (!process.unsellable().isEmpty()) {
-                player.sendMessage(ChatColor.YELLOW + "Some items were not sellable and were returned.");
+                if (messages != null) {
+                    messages.send(player, "sell.gui.unsellable_returned");
+                } else {
+                    player.sendMessage(ChatColor.YELLOW + "Some items were not sellable and were returned.");
+                }
             }
             return;
         }
 
-        player.sendMessage(ChatColor.GREEN + "Sold " + result.soldAmount() + " items for $" + SellService.formatMoney(result.total()) + ".");
+        if (messages != null) {
+            messages.send(player, "sell.sold",
+                    "amount", Integer.toString(result.soldAmount()),
+                    "total", SellService.formatMoney(result.total()));
+        } else {
+            player.sendMessage(ChatColor.GREEN + "Sold " + result.soldAmount() + " items for $" + SellService.formatMoney(result.total()) + ".");
+        }
         if (!process.unsellable().isEmpty()) {
-            player.sendMessage(ChatColor.YELLOW + "Some items were not sellable and were returned.");
+            if (messages != null) {
+                messages.send(player, "sell.gui.unsellable_returned");
+            } else {
+                player.sendMessage(ChatColor.YELLOW + "Some items were not sellable and were returned.");
+            }
         }
     }
 }

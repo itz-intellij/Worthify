@@ -3,6 +3,7 @@ package dev.simpleye.worthify.listener;
 import dev.simpleye.worthify.WorthifyPlugin;
 import dev.simpleye.worthify.gui.SellGuiHolder;
 import dev.simpleye.worthify.gui.SellGuiManager;
+import dev.simpleye.worthify.message.MessageService;
 import dev.simpleye.worthify.sell.SellResult;
 import dev.simpleye.worthify.sell.SellService;
 import org.bukkit.ChatColor;
@@ -70,12 +71,28 @@ public final class SellGuiListener implements Listener {
         if (rawSlot == SellGuiManager.SELL_BUTTON_SLOT) {
             SellResult result = sellService.sellFromInventorySlots(player, event.getInventory(), collectSlots);
 
+            MessageService messages = plugin.getMessages();
+
             if (result.economyMissing()) {
-                player.sendMessage(ChatColor.RED + "Economy is not available.");
+                if (messages != null) {
+                    messages.send(player, "errors.economy_unavailable");
+                } else {
+                    player.sendMessage(ChatColor.RED + "Economy is not available.");
+                }
             } else if (!result.success()) {
-                player.sendMessage(ChatColor.RED + "Nothing to sell.");
+                if (messages != null) {
+                    messages.send(player, "sell.nothing_to_sell");
+                } else {
+                    player.sendMessage(ChatColor.RED + "Nothing to sell.");
+                }
             } else {
-                player.sendMessage(ChatColor.GREEN + "Sold " + result.soldAmount() + " items for $" + SellService.formatMoney(result.total()) + ".");
+                if (messages != null) {
+                    messages.send(player, "sell.sold",
+                            "amount", Integer.toString(result.soldAmount()),
+                            "total", SellService.formatMoney(result.total()));
+                } else {
+                    player.sendMessage(ChatColor.GREEN + "Sold " + result.soldAmount() + " items for $" + SellService.formatMoney(result.total()) + ".");
+                }
             }
 
             return;

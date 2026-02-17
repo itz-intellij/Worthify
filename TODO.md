@@ -6,13 +6,10 @@
 
 ## Working On It
 
-- [ ] Ensure every command returns consistent usage + permission errors
-- [ ] Add config validation + safe defaults (avoid missing config keys)
+- [ ] Ensure every command retu- [ ] Add database-backed sell history (SQLite)rns consistent usage + permission errors
 - [ ] Add categories and sorting to `/worth` GUI
 - [ ] Add audit logging for admin changes (`/setworth`)
 - [ ] PlaceholderAPI placeholders
-- [ ] Add localization support (message keys + language files)
-- [ ] Add database-backed sell history (SQLite)
 - [ ] Add API for other plugins (expose worth lookup + sell events)
 
 ## Done :)
@@ -25,4 +22,6 @@
 - [ X ] Improve config.yml file
 - [ X ] Make Sellgui , Sellhistory , BalanceTop guis Editable ( Each One Of Them Should Have A File Cause The Config Looks Missy :) )
 - [ X ] Add All Items 
-
+- [ X ] Add config validation + safe defaults (avoid missing config keys)
+- [ X ] Add database-backed sell history (SQLite)
+- [ X ] Add localization support (message keys + language files)

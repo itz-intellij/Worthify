@@ -57,10 +57,23 @@ givemoney:
   failed: "&cFailed to give money to {player}."
   given: "&aGave &f${amount}&a to &f{player}&a."
 
+multiplier:
+  disabled: "&cWorth multiplier is disabled in config."
+
+setworth:
+  usage: "&cUsage: /setworth <number>"
+  invalid_number: "&cInvalid number: {number}"
+  invalid_value: "&cWorth must be >= 0"
+  hold_item: "&cHold an item in your main hand."
+  save_failed: "&cFailed to save prices.yml. Check console."
+  set: "&aSet worth for &f{item}&a to &f{value}&a."
+
 sell:
   usage: "&cUsage: /sell [hand|all]"
   nothing_to_sell: "&cNothing to sell."
   sold: "&aSold {amount} items for ${total}."
+  gui:
+    unsellable_returned: "&eSome items were not sellable and were returned."
 
 sellhistory:
   usage: "&cUsage: /sellhistory [page]"
@@ -73,6 +86,7 @@ worth:
 topbal:
   usage_page: "&cUsage: /baltop [page]"
   usage_page_limit: "&cUsage: /baltop [page] [limit]"
+  calculating: "&7Calculating top balances..."
   header: "&6Top Balances:"
   entry: "&e#{rank} &f{name}&7 - &b${balance}"
   empty: "&7No balances yet."

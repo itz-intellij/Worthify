@@ -54,7 +54,16 @@ public final class ConfigManager {
         plugin.reloadConfig();
 
         FileConfiguration config = plugin.getConfig();
+        try (InputStream in = plugin.getResource("config.yml")) {
+            if (in != null) {
+                YamlConfiguration def = YamlConfiguration.loadConfiguration(new InputStreamReader(in, StandardCharsets.UTF_8));
+                config.setDefaults(def);
+            }
+        } catch (Exception ex) {
+            plugin.getLogger().warning("Failed to load default config.yml: " + ex.getMessage());
+        }
         config.options().copyDefaults(true);
+        validateMainConfig(config);
         plugin.saveConfig();
 
         reloadGuiConfigs();
@@ -65,6 +74,91 @@ public final class ConfigManager {
             plugin.saveResource("prices.yml", false);
         }
         pricesConfig = YamlConfiguration.loadConfiguration(pricesFile);
+    }
+
+    private void validateMainConfig(FileConfiguration cfg) {
+        if (cfg == null) {
+            return;
+        }
+
+        ensureBoolean(cfg, "worth_lore.enabled", true);
+        ensureBoolean(cfg, "worth_lore.require_protocollib", true);
+        ensureBoolean(cfg, "worth_lore.add_to_unsellable_items", false);
+        ensureString(cfg, "worth_lore.line", "&7Worth: &a${worth}");
+
+        ensureString(cfg, "language", "en");
+
+        ensureBoolean(cfg, "economy.internal.enabled", true);
+        ensureDouble(cfg, "economy.internal.starting_balance", 0.0D);
+        ensureBoolean(cfg, "economy.vault.override_provider", false);
+
+        ensureBoolean(cfg, "update_checker.enabled", true);
+        ensureString(cfg, "update_checker.modrinth_project", "worthify");
+        ensureDouble(cfg, "update_checker.interval_minutes", 360.0D);
+        ensureBoolean(cfg, "update_checker.notify_on_join", true);
+
+        ensureBoolean(cfg, "auto_updater.enabled", false);
+
+        ensureBoolean(cfg, "worth_multiplier.enabled", false);
+        ensureDouble(cfg, "worth_multiplier.value", 1.0D);
+
+        ensureString(cfg, "sell_history.storage", "auto");
+        ensureDouble(cfg, "sell_history.max_entries_per_player", 500.0D);
+
+        ensureBoolean(cfg, "pay.enabled", true);
+        ensureDouble(cfg, "pay.cooldown_seconds", 0.0D);
+        ensureBoolean(cfg, "pay.receive_toggle.op_bypass", true);
+    }
+
+    private static void ensureBoolean(FileConfiguration cfg, String path, boolean def) {
+        Object raw = cfg.get(path);
+        if (raw == null) {
+            cfg.set(path, def);
+            return;
+        }
+        if (raw instanceof Boolean) {
+            return;
+        }
+        if (raw instanceof String s) {
+            String v = s.trim().toLowerCase(java.util.Locale.ROOT);
+            if (v.equals("true") || v.equals("false")) {
+                cfg.set(path, Boolean.parseBoolean(v));
+                return;
+            }
+        }
+        cfg.set(path, def);
+    }
+
+    private static void ensureDouble(FileConfiguration cfg, String path, double def) {
+        Object raw = cfg.get(path);
+        if (raw == null) {
+            cfg.set(path, def);
+            return;
+        }
+        if (raw instanceof Number) {
+            return;
+        }
+        if (raw instanceof String s) {
+            try {
+                cfg.set(path, Double.parseDouble(s.trim()));
+                return;
+            } catch (NumberFormatException ignored) {
+                // ignore
+            }
+        }
+        cfg.set(path, def);
+    }
+
+    private static void ensureString(FileConfiguration cfg, String path, String def) {
+        Object raw = cfg.get(path);
+        if (raw == null) {
+            cfg.set(path, def);
+            return;
+        }
+        if (raw instanceof String) {
+            return;
+        }
+        cfg.set(path, def);
     }
 
     private void reloadGuiConfigs() {

@@ -19,6 +19,8 @@ dependencies {
 
     implementation("org.bstats:bstats-bukkit:3.0.2")
 
+    implementation("org.xerial:sqlite-jdbc:3.46.1.0")
+
     // Optional hooks
     compileOnly("com.github.MilkBowl:VaultAPI:1.7") {
         exclude(group = "org.bukkit", module = "bukkit")
@@ -40,6 +42,7 @@ tasks.withType<JavaCompile> {
 tasks.shadowJar {
     archiveClassifier.set("")
     relocate("org.bstats", "dev.simpleye.worthify.lib.bstats")
+    relocate("org.sqlite", "dev.simpleye.worthify.lib.sqlite")
 }
 
 tasks.jar {

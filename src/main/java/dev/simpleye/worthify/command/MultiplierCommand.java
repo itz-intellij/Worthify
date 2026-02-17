@@ -33,7 +33,11 @@ public final class MultiplierCommand implements CommandExecutor {
         }
 
         if (!plugin.isWorthMultiplierEnabled()) {
-            sender.sendMessage(ChatColor.RED + "Worth multiplier is disabled in config.");
+            if (messages != null) {
+                messages.send(sender, "multiplier.disabled");
+            } else {
+                sender.sendMessage(ChatColor.RED + "Worth multiplier is disabled in config.");
+            }
             return true;
         }
 

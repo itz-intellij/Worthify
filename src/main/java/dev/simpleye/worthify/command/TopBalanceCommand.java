@@ -87,15 +87,27 @@ public final class TopBalanceCommand implements CommandExecutor {
             return true;
         }
 
-        sender.sendMessage(ChatColor.GRAY + "Calculating top balances...");
+        if (messages != null && !messages.get("topbal.calculating").isEmpty()) {
+            messages.send(sender, "topbal.calculating");
+        } else {
+            sender.sendMessage(ChatColor.GRAY + "Calculating top balances...");
+        }
         int finalPage = page;
         int finalLimit = cappedLimit;
         plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
             List<Map.Entry<String, Double>> top = computeVaultTopBalances(finalPage, finalLimit);
             plugin.getServer().getScheduler().runTask(plugin, () -> {
-                sender.sendMessage(ChatColor.GOLD + "Top Balances:");
+                if (messages != null && !messages.get("topbal.header").isEmpty()) {
+                    messages.send(sender, "topbal.header");
+                } else {
+                    sender.sendMessage(ChatColor.GOLD + "Top Balances:");
+                }
                 if (top.isEmpty()) {
-                    sender.sendMessage(ChatColor.GRAY + "No balances found.");
+                    if (messages != null && !messages.get("topbal.empty").isEmpty()) {
+                        messages.send(sender, "topbal.empty");
+                    } else {
+                        sender.sendMessage(ChatColor.GRAY + "No balances found.");
+                    }
                     return;
                 }
 
@@ -103,7 +115,14 @@ public final class TopBalanceCommand implements CommandExecutor {
                 for (int i = 0; i < top.size(); i++) {
                     int rank = startIndex + i + 1;
                     Map.Entry<String, Double> e = top.get(i);
-                    sender.sendMessage(ChatColor.YELLOW + "#" + rank + " " + ChatColor.WHITE + e.getKey() + ChatColor.GRAY + " - " + ChatColor.AQUA + "$" + SellService.formatMoney(e.getValue()));
+                    if (messages != null && !messages.get("topbal.entry").isEmpty()) {
+                        messages.send(sender, "topbal.entry",
+                                "rank", Integer.toString(rank),
+                                "name", e.getKey(),
+                                "balance", SellService.formatMoney(e.getValue()));
+                    } else {
+                        sender.sendMessage(ChatColor.YELLOW + "#" + rank + " " + ChatColor.WHITE + e.getKey() + ChatColor.GRAY + " - " + ChatColor.AQUA + "$" + SellService.formatMoney(e.getValue()));
+                    }
                 }
             });
         });

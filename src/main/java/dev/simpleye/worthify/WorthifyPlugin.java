@@ -68,7 +68,7 @@ public final class WorthifyPlugin extends JavaPlugin {
         this.configManager = new ConfigManager(this);
         this.worthManager = new WorthManager();
         this.economyHook = new EconomyHook(this);
-        this.sellHistoryStore = new SellHistoryStore(this, Integer.MAX_VALUE);
+        this.sellHistoryStore = null;
         this.paySettingsStore = new PaySettingsStore(this);
 
         this.serverVersion = ServerVersion.detect();
@@ -77,12 +77,25 @@ public final class WorthifyPlugin extends JavaPlugin {
 
         this.configManager.reload();
 
+        int maxSellHistory = 500;
+        try {
+            maxSellHistory = this.configManager.getMainConfig().getInt("sell_history.max_entries_per_player", 500);
+        } catch (Throwable ignored) {
+            // ignore
+        }
+        if (maxSellHistory <= 0) {
+            maxSellHistory = 500;
+        }
+        this.sellHistoryStore = new SellHistoryStore(this, maxSellHistory);
+
         this.messages = new MessageService(this);
         this.messages.reload();
 
         this.worthManager.reload(this.configManager.getPricesConfig(), this.materialResolver, msg -> getLogger().warning(msg));
         this.economyHook.hook();
-        this.sellHistoryStore.reload();
+        if (this.sellHistoryStore != null) {
+            this.sellHistoryStore.reload();
+        }
         this.paySettingsStore.reload();
 
         try {
@@ -319,6 +332,14 @@ public final class WorthifyPlugin extends JavaPlugin {
             worthLoreProtocolLibHook.stop();
             worthLoreProtocolLibHook = null;
         }
+
+        if (sellHistoryStore != null) {
+            try {
+                sellHistoryStore.close();
+            } catch (Throwable ignored) {
+                // ignore
+            }
+        }
     }
 
     public void reloadPlugin() {
@@ -328,7 +349,9 @@ public final class WorthifyPlugin extends JavaPlugin {
         }
         this.worthManager.reload(this.configManager.getPricesConfig(), this.materialResolver, msg -> getLogger().warning(msg));
         this.economyHook.hook();
-        this.sellHistoryStore.reload();
+        if (this.sellHistoryStore != null) {
+            this.sellHistoryStore.reload();
+        }
         if (this.paySettingsStore != null) {
             this.paySettingsStore.reload();
         }
