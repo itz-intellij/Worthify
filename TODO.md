@@ -11,7 +11,12 @@
 - [ ] Add audit logging for admin changes (`/setworth`)
 - [ ] PlaceholderAPI placeholders
 - [ ] Add API for other plugins (expose worth lookup + sell events)
-
+- [ ] Update Langs 
+- [ ] Add multiplierGui.yml For More Customize
+- [ ] Improve My Shitty Code 🙏
+- [ ] Fix Some Issues At Placeholder ( doesnt show right format at ajlb via ajlb only accept numbers not formats strings like [ k , m , b , q ] and make it clean )
+- [ ] Add Stick / Axe To sell items at chest 
+- [ ] Add More Ideas im just out of ideas idk what to added more
 ## Done :)
 
 - [ X ] Add more guardrails (validate worth values, prevent negatives)
