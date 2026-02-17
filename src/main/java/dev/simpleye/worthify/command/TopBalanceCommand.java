@@ -77,11 +77,12 @@ public final class TopBalanceCommand implements CommandExecutor {
         }
         int cappedLimit = Math.max(1, Math.min(100, limit));
 
+        if (sender instanceof Player player && gui != null) {
+            gui.open(player, page, cappedLimit);
+            return true;
+        }
+
         if (plugin.getEconomyHook().isUsingInternalEconomy()) {
-            if (sender instanceof Player player && gui != null) {
-                gui.open(player, page, cappedLimit);
-                return true;
-            }
             sendInternalTopBalances(sender, page, cappedLimit);
             return true;
         }

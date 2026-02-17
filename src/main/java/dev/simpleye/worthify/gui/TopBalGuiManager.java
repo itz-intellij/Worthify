@@ -15,6 +15,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -33,7 +35,14 @@ public final class TopBalGuiManager {
             36, 37, 38, 39, 40, 41, 42, 43, 44
     };
 
+    private static final int MAX_VAULT_SCAN = 5000;
+    private static final long VAULT_CACHE_TTL_MILLIS = 60_000L;
+
     private final WorthifyPlugin plugin;
+
+    private volatile List<Map.Entry<UUID, Double>> vaultCache = Collections.emptyList();
+    private volatile long vaultCacheTimeMillis;
+    private volatile boolean vaultComputing;
 
     public TopBalGuiManager(WorthifyPlugin plugin) {
         this.plugin = plugin;
@@ -45,12 +54,17 @@ public final class TopBalGuiManager {
         }
 
         int cap = limit <= 0 ? 10 : Math.min(100, limit);
-        List<Map.Entry<UUID, Double>> top = plugin.getEconomyHook().topInternalBalances(Integer.MAX_VALUE);
-        if (top.isEmpty()) {
-            top = java.util.Collections.emptyList();
+        List<Map.Entry<UUID, Double>> top;
+        boolean isVault = !plugin.getEconomyHook().isUsingInternalEconomy();
+        if (isVault) {
+            top = getVaultTopBalancesCached(cap);
+        } else {
+            top = plugin.getEconomyHook().topInternalBalances(Integer.MAX_VALUE);
         }
 
-        if (top.size() > cap) {
+        if (top == null) {
+            top = Collections.emptyList();
+        } else if (top.size() > cap) {
             top = new ArrayList<>(top.subList(0, cap));
         }
 
@@ -84,8 +98,14 @@ public final class TopBalGuiManager {
 
         int start = (page - 1) * perPage;
         int end = Math.min(top.size(), start + perPage);
-        for (int idx = start; idx < end; idx++) {
-            inv.setItem(CONTENT_SLOTS[idx - start], entryItem(idx + 1, top.get(idx)));
+        if (isVault && top.isEmpty() && vaultComputing) {
+            for (int slot : CONTENT_SLOTS) {
+                inv.setItem(slot, loadingItem());
+            }
+        } else {
+            for (int idx = start; idx < end; idx++) {
+                inv.setItem(CONTENT_SLOTS[idx - start], entryItem(idx + 1, top.get(idx)));
+            }
         }
 
         ConfigurationSection backSec = guiCfg != null ? guiCfg.getConfigurationSection("navigation.back") : null;
@@ -104,11 +124,73 @@ public final class TopBalGuiManager {
         TopBalGuiSession.set(player, page, maxPages, cap);
     }
 
+    private List<Map.Entry<UUID, Double>> getVaultTopBalancesCached(int limit) {
+        long now = System.currentTimeMillis();
+        boolean stale = vaultCache.isEmpty() || (now - vaultCacheTimeMillis) > VAULT_CACHE_TTL_MILLIS;
+        if (stale && !vaultComputing) {
+            vaultComputing = true;
+            plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
+                List<Map.Entry<UUID, Double>> computed = computeVaultTopBalances(Integer.MAX_VALUE);
+                vaultCache = computed;
+                vaultCacheTimeMillis = System.currentTimeMillis();
+                vaultComputing = false;
+            });
+        }
+
+        if (vaultCache.isEmpty()) {
+            return Collections.emptyList();
+        }
+        int cap = Math.max(1, Math.min(100, limit));
+        if (vaultCache.size() > cap) {
+            return new ArrayList<>(vaultCache.subList(0, cap));
+        }
+        return vaultCache;
+    }
+
+    private List<Map.Entry<UUID, Double>> computeVaultTopBalances(int limit) {
+        OfflinePlayer[] players = Bukkit.getOfflinePlayers();
+        int scanCap = Math.min(players.length, MAX_VAULT_SCAN);
+        List<Map.Entry<UUID, Double>> list = new ArrayList<>(scanCap);
+
+        for (int i = 0; i < scanCap; i++) {
+            OfflinePlayer p = players[i];
+            if (p == null) {
+                continue;
+            }
+            double bal = plugin.getEconomyHook().getBalance(p);
+            if (bal <= 0.0D) {
+                continue;
+            }
+            list.add(Map.entry(p.getUniqueId(), bal));
+        }
+
+        list.sort(Map.Entry.comparingByValue(Comparator.reverseOrder()));
+
+        if (limit <= 0 || limit == Integer.MAX_VALUE) {
+            return list;
+        }
+        int cap = Math.max(1, Math.min(100, limit));
+        if (list.size() > cap) {
+            return new ArrayList<>(list.subList(0, cap));
+        }
+        return list;
+    }
+
     private static ItemStack filler() {
         ItemStack item = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
         ItemMeta meta = item.getItemMeta();
         if (meta != null) {
             meta.setDisplayName(" ");
+            item.setItemMeta(meta);
+        }
+        return item;
+    }
+
+    private static ItemStack loadingItem() {
+        ItemStack item = new ItemStack(Material.CLOCK);
+        ItemMeta meta = item.getItemMeta();
+        if (meta != null) {
+            meta.setDisplayName(ColorUtil.colorize("&7Calculating..."));
             item.setItemMeta(meta);
         }
         return item;
