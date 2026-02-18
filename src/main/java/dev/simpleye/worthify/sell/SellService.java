@@ -1,5 +1,8 @@
 package dev.simpleye.worthify.sell;
 
+import dev.simpleye.worthify.WorthifyPlugin;
+import dev.simpleye.worthify.api.SellSource;
+import dev.simpleye.worthify.api.WorthifySellEvent;
 import dev.simpleye.worthify.history.SellHistoryEntry;
 import dev.simpleye.worthify.history.SellHistoryStore;
 import dev.simpleye.worthify.economy.EconomyHook;
@@ -27,12 +30,14 @@ public final class SellService {
     private final EconomyHook economyHook;
     private final SellHistoryStore historyStore;
     private final ToDoubleFunction<Material> worthMultiplier;
+    private final WorthifyPlugin plugin;
 
-    public SellService(WorthManager worthManager, EconomyHook economyHook, SellHistoryStore historyStore) {
-        this(worthManager, economyHook, historyStore, m -> 1.0D);
+    public SellService(WorthifyPlugin plugin, WorthManager worthManager, EconomyHook economyHook, SellHistoryStore historyStore) {
+        this(plugin, worthManager, economyHook, historyStore, m -> 1.0D);
     }
 
-    public SellService(WorthManager worthManager, EconomyHook economyHook, SellHistoryStore historyStore, ToDoubleFunction<Material> worthMultiplier) {
+    public SellService(WorthifyPlugin plugin, WorthManager worthManager, EconomyHook economyHook, SellHistoryStore historyStore, ToDoubleFunction<Material> worthMultiplier) {
+        this.plugin = plugin;
         this.worthManager = worthManager;
         this.economyHook = economyHook;
         this.historyStore = historyStore;
@@ -40,19 +45,29 @@ public final class SellService {
     }
 
     public SellResult sellHand(Player player) {
+        return sellHand(player, SellSource.OTHER);
+    }
+
+    public SellResult sellHand(Player player, SellSource source) {
         if (!economyHook.isEnabled()) {
-            return SellResult.disabledEconomy();
+            SellResult r = SellResult.disabledEconomy();
+            fireSellEvent(player, r, 0, source);
+            return r;
         }
 
         PlayerInventory inv = player.getInventory();
         ItemStack item = inv.getItemInMainHand();
         if (item == null || item.getType().isAir()) {
-            return SellResult.nothingToSell();
+            SellResult r = SellResult.nothingToSell();
+            fireSellEvent(player, r, 0, source);
+            return r;
         }
 
         double total = calculateStackWorth(item, 0);
         if (!(total > 0.0D) || Double.isNaN(total) || Double.isInfinite(total)) {
-            return SellResult.nothingToSell();
+            SellResult r = SellResult.nothingToSell();
+            fireSellEvent(player, r, 0, source);
+            return r;
         }
 
         int amount = item.getAmount();
@@ -64,12 +79,20 @@ public final class SellService {
             historyStore.append(player.getUniqueId(), new SellHistoryEntry(System.currentTimeMillis(), item.getType().name(), amount, total));
         }
 
-        return SellResult.success(amount, total);
+        SellResult r = SellResult.success(amount, total);
+        fireSellEvent(player, r, 0, source);
+        return r;
     }
 
     public SellResult sellAll(Player player) {
+        return sellAll(player, SellSource.OTHER);
+    }
+
+    public SellResult sellAll(Player player, SellSource source) {
         if (!economyHook.isEnabled()) {
-            return SellResult.disabledEconomy();
+            SellResult r = SellResult.disabledEconomy();
+            fireSellEvent(player, r, 0, source);
+            return r;
         }
 
         PlayerInventory inv = player.getInventory();
@@ -103,11 +126,15 @@ public final class SellService {
         }
 
         if (soldAmount <= 0) {
-            return SellResult.nothingToSell();
+            SellResult r = SellResult.nothingToSell();
+            fireSellEvent(player, r, 0, source);
+            return r;
         }
 
         if (!(total > 0.0D) || Double.isNaN(total) || Double.isInfinite(total)) {
-            return SellResult.nothingToSell();
+            SellResult r = SellResult.nothingToSell();
+            fireSellEvent(player, r, 0, source);
+            return r;
         }
 
         inv.setStorageContents(storage);
@@ -121,12 +148,20 @@ public final class SellService {
             }
         }
 
-        return SellResult.success(soldAmount, total);
+        SellResult r = SellResult.success(soldAmount, total);
+        fireSellEvent(player, r, 0, source);
+        return r;
     }
 
     public SellResult sellFromInventorySlots(Player player, Inventory inventory, List<Integer> slots) {
+        return sellFromInventorySlots(player, inventory, slots, SellSource.OTHER);
+    }
+
+    public SellResult sellFromInventorySlots(Player player, Inventory inventory, List<Integer> slots, SellSource source) {
         if (!economyHook.isEnabled()) {
-            return SellResult.disabledEconomy();
+            SellResult r = SellResult.disabledEconomy();
+            fireSellEvent(player, r, 0, source);
+            return r;
         }
 
         int soldAmount = 0;
@@ -161,7 +196,9 @@ public final class SellService {
         }
 
         if (soldAmount <= 0) {
-            return SellResult.nothingToSell();
+            SellResult r = SellResult.nothingToSell();
+            fireSellEvent(player, r, 0, source);
+            return r;
         }
 
         economyHook.deposit(player, total);
@@ -173,10 +210,17 @@ public final class SellService {
                 historyStore.append(player.getUniqueId(), new SellHistoryEntry(ts, e.getKey().name(), b.amount, b.total));
             }
         }
-        return SellResult.success(soldAmount, total);
+
+        SellResult r = SellResult.success(soldAmount, total);
+        fireSellEvent(player, r, 0, source);
+        return r;
     }
 
     public SellProcessResult sellAllFromInventory(Player player, Inventory inventory) {
+        return sellAllFromInventory(player, inventory, SellSource.OTHER);
+    }
+
+    public SellProcessResult sellAllFromInventory(Player player, Inventory inventory, SellSource source) {
         if (!economyHook.isEnabled()) {
             List<ItemStack> all = new ArrayList<>();
             for (ItemStack item : inventory.getContents()) {
@@ -185,7 +229,9 @@ public final class SellService {
                 }
             }
             inventory.clear();
-            return new SellProcessResult(SellResult.disabledEconomy(), all);
+            SellResult r = SellResult.disabledEconomy();
+            fireSellEvent(player, r, all.size(), source);
+            return new SellProcessResult(r, all);
         }
 
         int soldAmount = 0;
@@ -219,7 +265,9 @@ public final class SellService {
         inventory.clear();
 
         if (soldAmount <= 0) {
-            return new SellProcessResult(SellResult.nothingToSell(), unsellable);
+            SellResult r = SellResult.nothingToSell();
+            fireSellEvent(player, r, unsellable.size(), source);
+            return new SellProcessResult(r, unsellable);
         }
 
         economyHook.deposit(player, total);
@@ -232,7 +280,23 @@ public final class SellService {
             }
         }
 
-        return new SellProcessResult(SellResult.success(soldAmount, total), unsellable);
+        SellResult r = SellResult.success(soldAmount, total);
+        fireSellEvent(player, r, unsellable.size(), source);
+        return new SellProcessResult(r, unsellable);
+    }
+
+    private void fireSellEvent(Player player, SellResult result, int unsellableCount, SellSource source) {
+        if (plugin == null) {
+            return;
+        }
+        if (player == null || result == null) {
+            return;
+        }
+        try {
+            plugin.getServer().getPluginManager().callEvent(new WorthifySellEvent(player, result, unsellableCount, source == null ? SellSource.OTHER : source));
+        } catch (Throwable ignored) {
+            // ignore
+        }
     }
 
     private static final class SoldBucket {

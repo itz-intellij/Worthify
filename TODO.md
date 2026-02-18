@@ -6,17 +6,14 @@
 
 ## Working On It
 
-- [ ] Ensure every command retu- [ ] Add database-backed sell history (SQLite)rns consistent usage + permission errors
+- [ ] Add database-backed sell history (SQLite)rns consistent usage + permission errors
 - [ ] Add categories and sorting to `/worth` GUI
 - [ ] Add audit logging for admin changes (`/setworth`)
 - [ ] PlaceholderAPI placeholders
-- [ ] Add API for other plugins (expose worth lookup + sell events)
-- [ ] Update Langs 
-- [ ] Add multiplierGui.yml For More Customize
 - [ ] Improve My Shitty Code 🙏
 - [ ] Fix Some Issues At Placeholder ( doesnt show right format at ajlb via ajlb only accept numbers not formats strings like [ k , m , b , q ] and make it clean )
-- [ ] Add Stick / Axe To sell items at chest 
 - [ ] Add More Ideas im just out of ideas idk what to added more
+
 ## Done :)
 
 - [ X ] Add more guardrails (validate worth values, prevent negatives)
@@ -30,3 +27,7 @@
 - [ X ] Add config validation + safe defaults (avoid missing config keys)
 - [ X ] Add database-backed sell history (SQLite)
 - [ X ] Add localization support (message keys + language files)
+- [ X ] Add Stick / Axe To sell items at chest 
+- [ X ] Add multiplierGui.yml For More Customize
+- [ X ] Update Langs
+- [ X ] Add API for other plugins (expose worth lookup + sell events)

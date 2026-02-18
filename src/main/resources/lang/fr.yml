@@ -5,6 +5,7 @@
 errors:
   players_only: "&cJoueurs uniquement."
   economy_unavailable: "&cL'économie n'est pas disponible."
+  no_permission: "&cNo permission."
 
 worthify:
   reloaded: "&aWorthify rechargé."
@@ -27,22 +28,69 @@ balance:
 
 pay:
   usage: "&cUtilisation : /pay <player> <amount>"
+  disabled: "&cPay is disabled."
+  cooldown: "&cYou must wait {seconds}s before paying again."
   player_not_found: "&cJoueur introuvable (doit être en ligne) : {player}"
   cannot_pay_self: "&cVous ne pouvez pas vous payer vous-même."
   invalid_amount: "&cMontant invalide : {amount}"
   amount_must_be_positive: "&cLe montant doit être > 0"
+  target_disabled: "&c{player} is not accepting payments."
   not_enough: "&cVous n'avez pas assez d'argent. Solde : ${balance}"
   failed: "&cÉchec du paiement."
   sent: "&aVous avez payé &f{player}&a ${amount}."
   received: "&aVous avez reçu ${amount} de &f{player}&a."
+  toggle_on: "&aYou can now receive payments."
+  toggle_off: "&cYou will no longer receive payments."
+
+takemoney:
+  usage: "&cUsage: /takemoney <player> <amount>"
+  player_not_found: "&cPlayer not found: {player}"
+  invalid_amount: "&cInvalid amount: {amount}"
+  amount_must_be_positive: "&cAmount must be > 0"
+  nothing_to_take: "&cNothing to take from {player}."
+  failed: "&cFailed to take money from {player}."
+  taken: "&aTook &f${amount}&a from &f{player}&a."
+
+givemoney:
+  usage: "&cUsage: /givemoney <player> <amount>"
+  player_not_found: "&cPlayer not found: {player}"
+  invalid_amount: "&cInvalid amount: {amount}"
+  amount_must_be_positive: "&cAmount must be > 0"
+  failed: "&cFailed to give money to {player}."
+  given: "&aGave &f${amount}&a to &f{player}&a."
+
+multiplier:
+  disabled: "&cWorth multiplier is disabled in config."
+
+setworth:
+  usage: "&cUsage: /setworth <number>"
+  invalid_number: "&cInvalid number: {number}"
+  invalid_value: "&cWorth must be >= 0"
+  hold_item: "&cHold an item in your main hand."
+  save_failed: "&cFailed to save prices.yml. Check console."
+  set: "&aSet worth for &f{item}&a to &f{value}&a."
 
 sell:
   usage: "&cUtilisation : /sell [hand|all]"
   nothing_to_sell: "&cRien à vendre."
   sold: "&aVendu {amount} objets pour ${total}."
+  gui:
+    unsellable_returned: "&eSome items were not sellable and were returned."
 
 sellhistory:
   usage: "&cUtilisation : /sellhistory [page]"
+
+selltools:
+  wand:
+    usage: "&cUsage: /sellwand <time> <unit> [player]"
+  axe:
+    usage: "&cUsage: /sellaxe <time> <unit> [player]"
+  invalid_time: "&cInvalid time: {time}"
+  invalid_unit: "&cInvalid unit: {unit}"
+  player_required: "&cPlayer is required when using this from console."
+  disabled: "&cSell tools are disabled."
+  expired: "&cThis sell tool has expired."
+  given: "&aGiven to &f{player}&a."
 
 worth:
   hand_empty: "&cVous ne tenez rien."
@@ -52,6 +100,7 @@ worth:
 topbal:
   usage_page: "&cUtilisation : /topbal [page]"
   usage_page_limit: "&cUtilisation : /topbal [page] [limit]"
+  calculating: "&7Calculating top balances..."
   header: "&6Meilleurs soldes :"
   entry: "&e#{rank} &f{name}&7 - &b${balance}"
   empty: "&7Aucun solde pour le moment."

@@ -5,6 +5,7 @@
 errors:
   players_only: "&cSolo jugadores."
   economy_unavailable: "&cLa economía no está disponible."
+  no_permission: "&cNo permission."
 
 worthify:
   reloaded: "&aWorthify recargado."
@@ -41,13 +42,55 @@ pay:
   toggle_on: "&aAhora puedes recibir pagos."
   toggle_off: "&cYa no recibirás pagos."
 
+takemoney:
+  usage: "&cUsage: /takemoney <player> <amount>"
+  player_not_found: "&cPlayer not found: {player}"
+  invalid_amount: "&cInvalid amount: {amount}"
+  amount_must_be_positive: "&cAmount must be > 0"
+  nothing_to_take: "&cNothing to take from {player}."
+  failed: "&cFailed to take money from {player}."
+  taken: "&aTook &f${amount}&a from &f{player}&a."
+
+givemoney:
+  usage: "&cUsage: /givemoney <player> <amount>"
+  player_not_found: "&cPlayer not found: {player}"
+  invalid_amount: "&cInvalid amount: {amount}"
+  amount_must_be_positive: "&cAmount must be > 0"
+  failed: "&cFailed to give money to {player}."
+  given: "&aGave &f${amount}&a to &f{player}&a."
+
+multiplier:
+  disabled: "&cWorth multiplier is disabled in config."
+
+setworth:
+  usage: "&cUsage: /setworth <number>"
+  invalid_number: "&cInvalid number: {number}"
+  invalid_value: "&cWorth must be >= 0"
+  hold_item: "&cHold an item in your main hand."
+  save_failed: "&cFailed to save prices.yml. Check console."
+  set: "&aSet worth for &f{item}&a to &f{value}&a."
+
 sell:
   usage: "&cUso: /sell [hand|all]"
   nothing_to_sell: "&cNada para vender."
   sold: "&aVendiste {amount} objetos por ${total}."
+  gui:
+    unsellable_returned: "&eSome items were not sellable and were returned."
 
 sellhistory:
   usage: "&cUso: /sellhistory [page]"
+
+selltools:
+  wand:
+    usage: "&cUsage: /sellwand <time> <unit> [player]"
+  axe:
+    usage: "&cUsage: /sellaxe <time> <unit> [player]"
+  invalid_time: "&cInvalid time: {time}"
+  invalid_unit: "&cInvalid unit: {unit}"
+  player_required: "&cPlayer is required when using this from console."
+  disabled: "&cSell tools are disabled."
+  expired: "&cThis sell tool has expired."
+  given: "&aGiven to &f{player}&a."
 
 worth:
   hand_empty: "&cNo estás sosteniendo nada."
@@ -57,6 +100,7 @@ worth:
 topbal:
   usage_page: "&cUso: /topbal [page]"
   usage_page_limit: "&cUso: /topbal [page] [limit]"
+  calculating: "&7Calculating top balances..."
   header: "&6Mejores saldos:"
   entry: "&e#{rank} &f{name}&7 - &b${balance}"
   empty: "&7Aún no hay saldos."

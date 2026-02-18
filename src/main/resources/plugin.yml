@@ -1,6 +1,5 @@
-
 name: Worthify
-version: 1.0.1
+version: 1.0.3
 main: dev.simpleye.worthify.WorthifyPlugin
 author: "YE"
 discord: "._.ye"
@@ -8,7 +7,7 @@ github: "https://github.com/s1mple-ye/Worthify"
 modrinth: "https://modrinth.com/plugin/worthify"
 api-version: '1.21'
 folia-supported: true
-is-folia: true
+is-folia: true # idk which one of them is working so im gonna just add both
 softdepend:
   - Vault
   - PlaceholderAPI
@@ -69,6 +68,16 @@ commands:
     description: Give money to a player
     usage: /givemoney <player> <amount>
     permission: worthify.givemoney
+
+  sellwand:
+    description: Give a Sell Wand (admin)
+    usage: /sellwand <time> <unit> [player]
+    permission: worthify.selltools.give
+
+  sellaxe:
+    description: Give a Sell Axe (admin)
+    usage: /sellaxe <time> <unit> [player]
+    permission: worthify.selltools.give
 permissions:
   worthify.*:
     default: op
@@ -77,6 +86,7 @@ permissions:
       worthify.admin: true
       worthify.takemoney: true
       worthify.givemoney: true
+      worthify.selltools.give: true
       worthify.update: true
       worth.delete: true
   worthify.sell:
@@ -86,6 +96,8 @@ permissions:
   worthify.takemoney:
     default: op
   worthify.givemoney:
+    default: op
+  worthify.selltools.give:
     default: op
   worthify.update:
     default: op

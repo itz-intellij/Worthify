@@ -16,7 +16,14 @@ Worthify is a lightweight Paper plugin that assigns a configurable "worth" value
 - Sell history GUI
 - Worth multiplier system (global + category + per-material overrides)
 - Multiplier GUI (`/multiplier`) to view/edit category multipliers (only works when enabled)
+- Sell tools (SellWand / SellAxe) for selling containers with an expiry time (configured in `selltools.yml`)
 - Simple admin tooling for reloading without restarting
+
+## API (for other plugins)
+
+Worthify exposes a small API via Bukkit `ServicesManager` (worth lookup + sell helpers) and also fires a Bukkit event on sells.
+
+See: [`api.md`](./api.md)
 
 ## Commands
 
@@ -87,6 +94,10 @@ worth_multiplier:
 - `/multiplier` opens the GUI (only when enabled)
 - Everyone can open/view when enabled
 - Only `worthify.admin` can change category multipliers
+
+The multiplier GUI can be customized in:
+
+- `plugins/Worthify/gui/multiplier.yml`
 
 ## Update checker & Auto-updater
 

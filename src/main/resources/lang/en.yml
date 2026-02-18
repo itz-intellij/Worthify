@@ -78,6 +78,18 @@ sell:
 sellhistory:
   usage: "&cUsage: /sellhistory [page]"
 
+selltools:
+  wand:
+    usage: "&cUsage: /sellwand <time> <unit> [player]"
+  axe:
+    usage: "&cUsage: /sellaxe <time> <unit> [player]"
+  invalid_time: "&cInvalid time: {time}"
+  invalid_unit: "&cInvalid unit: {unit}"
+  player_required: "&cPlayer is required when using this from console."
+  disabled: "&cSell tools are disabled."
+  expired: "&cThis sell tool has expired."
+  given: "&aGiven to &f{player}&a."
+
 worth:
   hand_empty: "&cYou're not holding anything."
   no_worth: "&eNo worth set for &f{item}&e."

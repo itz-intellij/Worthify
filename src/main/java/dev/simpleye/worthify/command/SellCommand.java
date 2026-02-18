@@ -2,6 +2,7 @@ package dev.simpleye.worthify.command;
 
 import dev.simpleye.worthify.gui.SellOnCloseGuiManager;
 import dev.simpleye.worthify.message.MessageService;
+import dev.simpleye.worthify.api.SellSource;
 import dev.simpleye.worthify.sell.SellResult;
 import dev.simpleye.worthify.sell.SellService;
 import org.bukkit.ChatColor;
@@ -42,8 +43,8 @@ public final class SellCommand implements CommandExecutor {
         SellResult result;
 
         switch (mode) {
-            case "hand" -> result = sellService.sellHand(player);
-            case "all" -> result = sellService.sellAll(player);
+            case "hand" -> result = sellService.sellHand(player, SellSource.COMMAND_HAND);
+            case "all" -> result = sellService.sellAll(player, SellSource.COMMAND_ALL);
             default -> {
                 if (messages != null) {
                     messages.send(sender, "sell.usage");

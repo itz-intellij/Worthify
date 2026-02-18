@@ -24,6 +24,8 @@ import dev.simpleye.worthify.hook.WorthLoreProtocolLibHook;
 import dev.simpleye.worthify.history.SellHistoryStore;
 import dev.simpleye.worthify.listener.SellHistoryGuiListener;
 import dev.simpleye.worthify.listener.SellOnCloseGuiListener;
+import dev.simpleye.worthify.listener.SellToolCleanupListener;
+import dev.simpleye.worthify.listener.SellToolListener;
 import dev.simpleye.worthify.listener.TopBalGuiListener;
 import dev.simpleye.worthify.listener.WorthGuiListener;
 import dev.simpleye.worthify.listener.MultiplierGuiListener;
@@ -32,10 +34,16 @@ import dev.simpleye.worthify.placeholder.WorthifyPlaceholders;
 import dev.simpleye.worthify.command.MultiplierCommand;
 import dev.simpleye.worthify.command.TakeMoneyCommand;
 import dev.simpleye.worthify.command.GiveMoneyCommand;
+import dev.simpleye.worthify.command.SellAxeCommand;
+import dev.simpleye.worthify.command.SellWandCommand;
 import dev.simpleye.worthify.pay.PaySettingsStore;
 import dev.simpleye.worthify.update.ModrinthUpdateChecker;
 import dev.simpleye.worthify.update.UpdateNotifyListener;
 import dev.simpleye.worthify.sell.SellService;
+import dev.simpleye.worthify.api.WorthifyAPI;
+import dev.simpleye.worthify.api.WorthifyAPIImpl;
+import dev.simpleye.worthify.selltools.SellToolRegistry;
+import dev.simpleye.worthify.selltools.SellToolUtil;
 import dev.simpleye.worthify.worth.WorthManager;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimplePie;
@@ -62,6 +70,11 @@ public final class WorthifyPlugin extends JavaPlugin {
     private MessageService messages;
     private ModrinthUpdateChecker updateChecker;
     private PaySettingsStore paySettingsStore;
+
+    private SellToolUtil sellToolUtil;
+    private SellToolRegistry sellToolRegistry;
+
+    private WorthifyAPI api;
 
     @Override
     public void onEnable() {
@@ -91,6 +104,9 @@ public final class WorthifyPlugin extends JavaPlugin {
         this.messages = new MessageService(this);
         this.messages.reload();
 
+        this.sellToolRegistry = new SellToolRegistry(this);
+        this.sellToolRegistry.initAndLoad();
+
         this.worthManager.reload(this.configManager.getPricesConfig(), this.materialResolver, msg -> getLogger().warning(msg));
         this.economyHook.hook();
         if (this.sellHistoryStore != null) {
@@ -106,12 +122,17 @@ public final class WorthifyPlugin extends JavaPlugin {
             // ignore
         }
 // Guis
-        this.sellService = new SellService(this.worthManager, this.economyHook, this.sellHistoryStore, m -> getWorthMultiplier(m));
+        this.sellService = new SellService(this, this.worthManager, this.economyHook, this.sellHistoryStore, m -> getWorthMultiplier(m));
         this.sellOnCloseGuiManager = new SellOnCloseGuiManager(this);
         this.worthGuiManager = new WorthGuiManager(this);
         this.sellHistoryGuiManager = new SellHistoryGuiManager(this);
         this.topBalGuiManager = new TopBalGuiManager(this);
         this.multiplierGuiManager = new MultiplierGuiManager(this);
+
+        this.api = new WorthifyAPIImpl(this.worthManager, this.sellService);
+        getServer().getServicesManager().register(WorthifyAPI.class, this.api, this, org.bukkit.plugin.ServicePriority.Normal);
+
+        this.sellToolUtil = new SellToolUtil(this, this.sellToolRegistry);
 // Commands
         registerCommand("sell", new SellCommand(this.sellService, this.sellOnCloseGuiManager, this.messages));
         registerCommand("balance", new BalanceCommand(this));
@@ -126,6 +147,8 @@ public final class WorthifyPlugin extends JavaPlugin {
         registerCommand("multiplier", new MultiplierCommand(this, this.multiplierGuiManager));
         registerCommand("takemoney", new TakeMoneyCommand(this));
         registerCommand("givemoney", new GiveMoneyCommand(this));
+        registerCommand("sellwand", new SellWandCommand(this, this.sellToolUtil));
+        registerCommand("sellaxe", new SellAxeCommand(this, this.sellToolUtil));
 
         NotImplementedCommand notImplemented = new NotImplementedCommand();
 
@@ -134,6 +157,9 @@ public final class WorthifyPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new SellHistoryGuiListener(this.sellHistoryGuiManager), this);
         getServer().getPluginManager().registerEvents(new TopBalGuiListener(this.topBalGuiManager), this);
         getServer().getPluginManager().registerEvents(new MultiplierGuiListener(this, this.multiplierGuiManager), this);
+
+        getServer().getPluginManager().registerEvents(new SellToolListener(this, this.sellService, this.sellToolUtil), this);
+        getServer().getPluginManager().registerEvents(new SellToolCleanupListener(this, this.sellToolUtil), this);
 
         startUpdateCheckerIfEnabled();
         getServer().getPluginManager().registerEvents(new UpdateNotifyListener(this), this);
@@ -340,6 +366,17 @@ public final class WorthifyPlugin extends JavaPlugin {
                 // ignore
             }
         }
+
+        try {
+            getServer().getServicesManager().unregisterAll(this);
+        } catch (Throwable ignored) {
+            // ignore
+        }
+
+        api = null;
+
+        sellToolRegistry = null;
+        sellToolUtil = null;
     }
 
     public void reloadPlugin() {

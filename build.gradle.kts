@@ -4,7 +4,7 @@ plugins {
 }
 
 group = (project.findProperty("group") as String?) ?: "dev.simpleye"
-version = (project.findProperty("version") as String?) ?: "1.0.2"
+version = (project.findProperty("version") as String?) ?: "1.0.3"
 
 repositories {
     mavenCentral()

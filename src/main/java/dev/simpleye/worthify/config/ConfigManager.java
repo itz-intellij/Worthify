@@ -22,6 +22,9 @@ public final class ConfigManager {
     private YamlConfiguration sellGuiConfig;
     private YamlConfiguration sellHistoryGuiConfig;
     private YamlConfiguration topBalGuiConfig;
+    private YamlConfiguration multiplierGuiConfig;
+
+    private YamlConfiguration sellToolsConfig;
 
     private YamlConfiguration langConfig;
 
@@ -68,6 +71,8 @@ public final class ConfigManager {
 
         reloadGuiConfigs();
         reloadLangConfig();
+
+        sellToolsConfig = loadOrCreate("selltools.yml");
 
         pricesFile = new File(plugin.getDataFolder(), "prices.yml");
         if (!pricesFile.exists()) {
@@ -171,6 +176,7 @@ public final class ConfigManager {
         sellGuiConfig = loadOrCreate("gui/sell.yml");
         sellHistoryGuiConfig = loadOrCreate("gui/sellhistory.yml");
         topBalGuiConfig = loadOrCreate("gui/topbal.yml");
+        multiplierGuiConfig = loadOrCreate("gui/multiplier.yml");
     }
 
     private YamlConfiguration loadOrCreate(String resourcePath) {
@@ -237,6 +243,14 @@ public final class ConfigManager {
 
     public YamlConfiguration getTopBalGuiConfig() {
         return topBalGuiConfig;
+    }
+
+    public YamlConfiguration getMultiplierGuiConfig() {
+        return multiplierGuiConfig;
+    }
+
+    public YamlConfiguration getSellToolsConfig() {
+        return sellToolsConfig;
     }
 
     public YamlConfiguration getLangConfig() {

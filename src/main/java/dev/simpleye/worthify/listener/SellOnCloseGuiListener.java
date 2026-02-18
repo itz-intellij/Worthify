@@ -3,6 +3,7 @@ package dev.simpleye.worthify.listener;
 import dev.simpleye.worthify.WorthifyPlugin;
 import dev.simpleye.worthify.gui.SellGuiHolder;
 import dev.simpleye.worthify.message.MessageService;
+import dev.simpleye.worthify.api.SellSource;
 import dev.simpleye.worthify.sell.SellProcessResult;
 import dev.simpleye.worthify.sell.SellResult;
 import dev.simpleye.worthify.sell.SellService;
@@ -35,7 +36,7 @@ public final class SellOnCloseGuiListener implements Listener {
             return;
         }
 
-        SellProcessResult process = sellService.sellAllFromInventory(player, inv);
+        SellProcessResult process = sellService.sellAllFromInventory(player, inv, SellSource.GUI_CLOSE);
         SellResult result = process.result();
 
         for (ItemStack item : process.unsellable()) {

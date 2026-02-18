@@ -4,6 +4,7 @@ import dev.simpleye.worthify.WorthifyPlugin;
 import dev.simpleye.worthify.gui.SellGuiHolder;
 import dev.simpleye.worthify.gui.SellGuiManager;
 import dev.simpleye.worthify.message.MessageService;
+import dev.simpleye.worthify.api.SellSource;
 import dev.simpleye.worthify.sell.SellResult;
 import dev.simpleye.worthify.sell.SellService;
 import org.bukkit.ChatColor;
@@ -69,7 +70,7 @@ public final class SellGuiListener implements Listener {
         }
 
         if (rawSlot == SellGuiManager.SELL_BUTTON_SLOT) {
-            SellResult result = sellService.sellFromInventorySlots(player, event.getInventory(), collectSlots);
+            SellResult result = sellService.sellFromInventorySlots(player, event.getInventory(), collectSlots, SellSource.GUI_BUTTON);
 
             MessageService messages = plugin.getMessages();
 
