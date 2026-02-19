@@ -2,8 +2,10 @@ package dev.simpleye.worthify.selltools;
 
 import dev.simpleye.worthify.WorthifyPlugin;
 import dev.simpleye.worthify.gui.ColorUtil;
-import org.bukkit.Material;
+import dev.simpleye.worthify.sell.SellService;
 import org.bukkit.NamespacedKey;
+import org.bukkit.enchantments.Enchantment;
+import org.bukkit.Material;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -29,6 +31,9 @@ public final class SellToolUtil {
     private final NamespacedKey keyToolId;
     private final NamespacedKey keyUses;
     private final NamespacedKey keyHideExpires;
+    private final NamespacedKey keyLastUsedBy;
+    private final NamespacedKey keySoldItems;
+    private final NamespacedKey keyMoneyMade;
 
     private static final DateTimeFormatter EXPIRES_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
             .withZone(ZoneId.systemDefault());
@@ -41,6 +46,9 @@ public final class SellToolUtil {
         this.keyToolId = new NamespacedKey(plugin, "sell_tool_id");
         this.keyUses = new NamespacedKey(plugin, "sell_tool_uses");
         this.keyHideExpires = new NamespacedKey(plugin, "sell_tool_hide_expires");
+        this.keyLastUsedBy = new NamespacedKey(plugin, "sell_tool_last_used_by");
+        this.keySoldItems = new NamespacedKey(plugin, "sell_tool_sold_items");
+        this.keyMoneyMade = new NamespacedKey(plugin, "sell_tool_money_made");
     }
 
     public ItemStack createTool(SellToolType type, long expiresAtMillis) {
@@ -98,8 +106,13 @@ public final class SellToolUtil {
             pdc.set(keyToolId, PersistentDataType.STRING, toolId.toString());
             pdc.set(keyUses, PersistentDataType.INTEGER, uses);
             pdc.set(keyHideExpires, PersistentDataType.BYTE, (byte) (hideExpires ? 1 : 0));
+            pdc.set(keyLastUsedBy, PersistentDataType.STRING, "");
+            pdc.set(keySoldItems, PersistentDataType.INTEGER, 0);
+            pdc.set(keyMoneyMade, PersistentDataType.DOUBLE, 0.0D);
 
             item.setItemMeta(meta);
+
+            applyEnchantmentsFromConfig(item, type);
 
             if (registry != null) {
                 registry.register(toolId, type, expiresAtMillis);
@@ -142,6 +155,62 @@ public final class SellToolUtil {
             return SellToolType.valueOf(raw);
         } catch (IllegalArgumentException ignored) {
             return null;
+        }
+    }
+
+    public String getLastUsedBy(ItemStack item) {
+        if (item == null || item.getType().isAir()) {
+            return null;
+        }
+        ItemMeta meta = item.getItemMeta();
+        if (meta == null) {
+            return null;
+        }
+        return meta.getPersistentDataContainer().get(keyLastUsedBy, PersistentDataType.STRING);
+    }
+
+    public int getSoldItems(ItemStack item) {
+        if (item == null || item.getType().isAir()) {
+            return 0;
+        }
+        ItemMeta meta = item.getItemMeta();
+        if (meta == null) {
+            return 0;
+        }
+        Integer v = meta.getPersistentDataContainer().get(keySoldItems, PersistentDataType.INTEGER);
+        return v == null ? 0 : v;
+    }
+
+    public double getMoneyMade(ItemStack item) {
+        if (item == null || item.getType().isAir()) {
+            return 0.0D;
+        }
+        ItemMeta meta = item.getItemMeta();
+        if (meta == null) {
+            return 0.0D;
+        }
+        Double v = meta.getPersistentDataContainer().get(keyMoneyMade, PersistentDataType.DOUBLE);
+        return v == null ? 0.0D : v;
+    }
+
+    public void recordSellUse(ItemStack item, String playerName, int soldAmount, double moneyMade) {
+        if (item == null || item.getType().isAir()) {
+            return;
+        }
+        ItemMeta meta = item.getItemMeta();
+        if (meta == null) {
+            return;
+        }
+
+        PersistentDataContainer pdc = meta.getPersistentDataContainer();
+        pdc.set(keyLastUsedBy, PersistentDataType.STRING, playerName);
+        pdc.set(keySoldItems, PersistentDataType.INTEGER, getSoldItems(item) + soldAmount);
+        pdc.set(keyMoneyMade, PersistentDataType.DOUBLE, getMoneyMade(item) + moneyMade);
+        item.setItemMeta(meta);
+
+        SellToolType type = getToolType(item);
+        if (type != null) {
+            refreshLore(item, type);
         }
     }
 
@@ -397,6 +466,22 @@ public final class SellToolUtil {
         int uses = getUses(item);
         boolean hideExpires = shouldHideExpires(item);
 
+        String toolId = null;
+        java.util.UUID id = getToolId(item);
+        if (id != null) {
+            toolId = id.toString();
+        }
+        String toolIdShort = null;
+        if (toolId != null && toolId.length() >= 8) {
+            toolIdShort = toolId.substring(0, 8);
+        }
+        String lastUsedBy = getLastUsedBy(item);
+        if (lastUsedBy == null || lastUsedBy.isBlank()) {
+            lastUsedBy = "NOT USED YET";
+        }
+        int soldItems = getSoldItems(item);
+        double moneyMade = getMoneyMade(item);
+
         List<String> lore = new ArrayList<>(loreRaw.size());
         String expires = formatExpires(expiresAtMillis);
         String usesText = formatUses(uses);
@@ -407,10 +492,68 @@ public final class SellToolUtil {
             if (hideExpires && line.contains("{expires}")) {
                 continue;
             }
-            lore.add(ColorUtil.colorize(line.replace("{expires}", expires).replace("{uses}", usesText)));
+            String next = line
+                    .replace("{expires}", expires)
+                    .replace("{uses}", usesText)
+                    .replace("{last_used_by}", lastUsedBy)
+                    .replace("{sold_items}", Integer.toString(soldItems))
+                    .replace("{money_made}", SellService.formatMoney(moneyMade))
+                    .replace("{id}", toolId == null ? "" : toolId)
+                    .replace("{id_short}", toolIdShort == null ? "" : toolIdShort);
+            lore.add(ColorUtil.colorize(next));
         }
 
         meta.setLore(lore);
+        item.setItemMeta(meta);
+    }
+
+    private void applyEnchantmentsFromConfig(ItemStack item, SellToolType type) {
+        if (item == null || item.getType().isAir() || type == null) {
+            return;
+        }
+        YamlConfiguration cfg = plugin.getConfigManager().getSellToolsConfig();
+        if (cfg == null) {
+            return;
+        }
+
+        String typeKey = type == SellToolType.WAND ? "wand" : "axe";
+        List<String> enchLines = cfg.getStringList(PATH_ROOT + "." + typeKey + ".enchantments");
+        if (enchLines == null || enchLines.isEmpty()) {
+            return;
+        }
+
+        ItemMeta meta = item.getItemMeta();
+        if (meta == null) {
+            return;
+        }
+
+        for (String raw : enchLines) {
+            if (raw == null || raw.isBlank()) {
+                continue;
+            }
+
+            String[] parts = raw.trim().split(":", 2);
+            String name = parts[0].trim();
+            int level = 1;
+            if (parts.length == 2) {
+                try {
+                    level = Integer.parseInt(parts[1].trim());
+                } catch (NumberFormatException ignored) {
+                    level = 1;
+                }
+            }
+
+            Enchantment ench = Enchantment.getByKey(org.bukkit.NamespacedKey.minecraft(name.toLowerCase(java.util.Locale.ROOT)));
+            if (ench == null) {
+                ench = Enchantment.getByName(name.toUpperCase(java.util.Locale.ROOT));
+            }
+            if (ench == null) {
+                continue;
+            }
+
+            meta.addEnchant(ench, Math.max(1, level), true);
+        }
+
         item.setItemMeta(meta);
     }
 }

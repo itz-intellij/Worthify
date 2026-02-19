@@ -77,6 +77,7 @@ public final class SellToolListener implements Listener {
             SellResult result = sellContainer(player, clicked, util.shouldDestroyContainer(SellToolType.WAND));
             if (result != null) {
                 if (result.success()) {
+                    util.recordSellUse(hand, player.getName(), result.soldAmount(), result.total());
                     util.decrementUses(hand);
                     if (!util.hasUses(hand)) {
                         handleNoUses(player, hand, SellToolType.WAND);

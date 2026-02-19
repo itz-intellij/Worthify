@@ -9,21 +9,44 @@ sell_tools:
     default_time: 1
     default_unit: days
     material: STICK
-    title: "&aSell Wand"
+    title: "&5&lSELL WAND"
+    enchantments:
+      - "fortune:1"
+      - "efficiency:2"
     lore:
-      - "&7Right-click a container to sell its contents."
-      - "&7Expires: &f{expires}"
-      - "&7Uses: &f{uses}"
+      - ""
+      - "&5&lINFO"
+      - "&5| &fUSES: &d{uses}"
+      - "&5| &fLAST USED BY: &d{last_used_by}"
+      - ""
+      - "&5&lSTATS"
+     - "&5| &fSOLD ITEMS: &d{sold_items}"
+     - "&5| &fMONEY MADE: &d${money_made}"
+      - "&5| &fID: &d{id_short}"
+      - ""
+      - "&d(&5!&d) &5RIGHT-CLICK A CHEST TO SELL THE ITEMS!"
     destroy_container: false
   axe:
     enabled: true
     activation: BREAK
     self_destruct_on_expiry: true
     material: DIAMOND_AXE
-    title: "&cSell Axe"
+    title: "&5&lSELL AXE"
+    enchantments:
+      - "fortune:1"
+      - "efficiency:2"
     lore:
-      - "&7Break a container to sell its contents."
-      - "&7Expires: &f{expires}"
+      - ""
+      - "&5&lINFO"
+      - "&5| &fUSES: &d{uses}"
+     - "&5| &fLAST USED BY: &d{last_used_by}"
+      - ""
+      - "&5&lSTATS"
+      - "&5| &fSOLD ITEMS: &d{sold_items}"
+      - "&5| &fMONEY MADE: &d${money_made}"
+      - "&5| &fID: &d{id_short}"
+      - ""
+      - "&d(&5!&d) &5MINE A CHEST TO SELL THE ITEMS!"
     destroy_container: true
 
 allowed_containers:
