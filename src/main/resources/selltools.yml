@@ -1,20 +1,24 @@
 #======================================================================================================================#
 #                              SellTools.yml
 #======================================================================================================================#
-
-
-
 sell_tools:
   wand:
     enabled: true
+    activation: RIGHT_CLICK_BLOCK
+    self_destruct_on_expiry: false
+    default_time: 1
+    default_unit: days
     material: STICK
     title: "&aSell Wand"
     lore:
       - "&7Right-click a container to sell its contents."
       - "&7Expires: &f{expires}"
+      - "&7Uses: &f{uses}"
     destroy_container: false
   axe:
     enabled: true
+    activation: BREAK
+    self_destruct_on_expiry: true
     material: DIAMOND_AXE
     title: "&cSell Axe"
     lore:

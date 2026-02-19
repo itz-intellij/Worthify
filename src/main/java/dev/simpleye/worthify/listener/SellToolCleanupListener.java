@@ -65,6 +65,10 @@ public final class SellToolCleanupListener implements Listener {
                 continue;
             }
 
+            if (expired && active && !util.shouldSelfDestructOnExpiry(type)) {
+                continue;
+            }
+
             util.revoke(item);
             contents[i] = null;
             changed = true;

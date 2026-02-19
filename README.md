@@ -16,14 +16,8 @@ Worthify is a lightweight Paper plugin that assigns a configurable "worth" value
 - Sell history GUI
 - Worth multiplier system (global + category + per-material overrides)
 - Multiplier GUI (`/multiplier`) to view/edit category multipliers (only works when enabled)
-- Sell tools (SellWand / SellAxe) for selling containers with an expiry time (configured in `selltools.yml`)
+- Sell tools (SellWand / SellAxe) for selling containers with an expiry time or usage limit (configured in `selltools.yml`)
 - Simple admin tooling for reloading without restarting
-
-## API (for other plugins)
-
-Worthify exposes a small API via Bukkit `ServicesManager` (worth lookup + sell helpers) and also fires a Bukkit event on sells.
-
-See: [`api.md`](./api.md)
 
 ## Commands
 
@@ -42,6 +36,19 @@ See: [`api.md`](./api.md)
   - **Permission**: `worthify.admin`
 - **`/worthify reload`**
   - **Permission**: `worthify.admin`
+
+- **`/sellwand usage <uses> [player]`**
+  - **Permission**: `worthify.selltools.give`
+  - **Notes**: Usage-only wand (expiry hidden in lore). Disappears when uses reach `0`.
+- **`/sellwand selfdestruction <time> <unit> [player]`**
+  - **Permission**: `worthify.selltools.give`
+  - **Notes**: Time-expiring wand.
+- **`/sellwand setuses <uses> [player]`**
+  - **Permission**: `worthify.selltools.give`
+  - **Notes**: Changes uses of the SellWand in the target player's main hand.
+
+- **`/sellaxe <time> <unit> [player]`**
+  - **Permission**: `worthify.selltools.give`
 
 ## Permissions
 
@@ -98,6 +105,30 @@ worth_multiplier:
 The multiplier GUI can be customized in:
 
 - `plugins/Worthify/gui/multiplier.yml`
+
+### SellTools
+
+Sell tools are configured in:
+
+- `plugins/Worthify/selltools.yml`
+
+This file controls:
+
+- Tool enable/disable, materials, titles and lore
+- Activation mode (right/left click, break)
+- Allowed container whitelist
+- Self-destruction on expiry
+- Uses display via `{uses}` and expiry display via `{expires}`
+
+## PlaceholderAPI
+
+If PlaceholderAPI is installed, Worthify registers placeholders such as:
+
+- `%worthify_balance%`
+- `%worthify_balance_plain%`
+- `%worthify_balance_short%`
+
+Use `%worthify_balance_plain%` for numeric-only displays (e.g. TAB objectives).
 
 ## Update checker & Auto-updater
 

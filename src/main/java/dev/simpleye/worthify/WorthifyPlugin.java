@@ -511,5 +511,9 @@ public final class WorthifyPlugin extends JavaPlugin {
             return;
         }
         command.setExecutor(executor);
+
+        if (executor instanceof org.bukkit.command.TabCompleter completer) {
+            command.setTabCompleter(completer);
+        }
     }
 }

@@ -82,7 +82,9 @@ sellhistory:
 
 selltools:
   wand:
-    usage: "&cUsage: /sellwand <time> <unit> [player]"
+    usage: "&cUsage: /sellwand usage <uses> [player] OR /sellwand selfdestruction <time> <unit> [player] OR /sellwand setuses <uses> [player]"
+    hold_wand: "&cHold a sell wand in your main hand."
+    uses_set: "&aSet sell wand uses for &f{player}&a to &f{uses}&a."
   axe:
     usage: "&cUsage: /sellaxe <time> <unit> [player]"
   invalid_time: "&cInvalid time: {time}"
@@ -90,6 +92,7 @@ selltools:
   player_required: "&cPlayer is required when using this from console."
   disabled: "&cSell tools are disabled."
   expired: "&cThis sell tool has expired."
+  no_uses: "&cThis sell tool has no uses left."
   given: "&aGiven to &f{player}&a."
 
 worth:

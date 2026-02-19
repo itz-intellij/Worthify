@@ -39,44 +39,86 @@ public final class SellToolListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onRightClick(PlayerInteractEvent event) {
-        if (event.getAction() != Action.RIGHT_CLICK_BLOCK) {
-            return;
-        }
-
         Player player = event.getPlayer();
         ItemStack hand = event.getItem();
-        if (!util.isTool(hand, SellToolType.WAND)) {
+        Action action = event.getAction();
+
+        // WAND click (right or left)
+        if (util.isTool(hand, SellToolType.WAND) && util.isEnabled(SellToolType.WAND)) {
+            String activation = util.getActivation(SellToolType.WAND);
+            if (("RIGHT_CLICK_BLOCK".equalsIgnoreCase(activation) && action != Action.RIGHT_CLICK_BLOCK)
+                    || ("LEFT_CLICK_BLOCK".equalsIgnoreCase(activation) && action != Action.LEFT_CLICK_BLOCK)) {
+                return;
+            }
+
+            Block clicked = event.getClickedBlock();
+            if (clicked == null || !util.isAllowedContainer(clicked.getType())) {
+                return;
+            }
+
+            if (!util.isActiveInRegistry(hand)) {
+                handleRevoked(player, hand);
+                event.setCancelled(true);
+                return;
+            }
+
+            if (util.isExpired(hand)) {
+                handleExpired(player, hand, SellToolType.WAND);
+                event.setCancelled(true);
+                return;
+            }
+
+            if (!util.hasUses(hand)) {
+                handleNoUses(player, hand, SellToolType.WAND);
+                event.setCancelled(true);
+                return;
+            }
+
+            SellResult result = sellContainer(player, clicked, util.shouldDestroyContainer(SellToolType.WAND));
+            if (result != null) {
+                if (result.success()) {
+                    util.decrementUses(hand);
+                    if (!util.hasUses(hand)) {
+                        handleNoUses(player, hand, SellToolType.WAND);
+                    }
+                }
+                event.setCancelled(true);
+            }
             return;
         }
 
-        if (!util.isEnabled(SellToolType.WAND)) {
-            return;
-        }
+        // AXE click mode (optional)
+        if (util.isTool(hand, SellToolType.AXE) && util.isEnabled(SellToolType.AXE)) {
+            String activation = util.getActivation(SellToolType.AXE);
+            if (!("RIGHT_CLICK_BLOCK".equalsIgnoreCase(activation) || "LEFT_CLICK_BLOCK".equalsIgnoreCase(activation))) {
+                return;
+            }
+            if (("RIGHT_CLICK_BLOCK".equalsIgnoreCase(activation) && action != Action.RIGHT_CLICK_BLOCK)
+                    || ("LEFT_CLICK_BLOCK".equalsIgnoreCase(activation) && action != Action.LEFT_CLICK_BLOCK)) {
+                return;
+            }
 
-        Block clicked = event.getClickedBlock();
-        if (clicked == null) {
-            return;
-        }
+            Block clicked = event.getClickedBlock();
+            if (clicked == null || !util.isAllowedContainer(clicked.getType())) {
+                return;
+            }
 
-        if (!util.isAllowedContainer(clicked.getType())) {
-            return;
-        }
+            if (!util.isActiveInRegistry(hand)) {
+                handleRevoked(player, hand);
+                event.setCancelled(true);
+                return;
+            }
 
-        if (!util.isActiveInRegistry(hand)) {
-            handleExpired(player, hand);
-            event.setCancelled(true);
-            return;
-        }
+            if (util.isExpired(hand)) {
+                handleExpired(player, hand, SellToolType.AXE);
+                event.setCancelled(true);
+                return;
+            }
 
-        if (util.isExpired(hand)) {
-            handleExpired(player, hand);
-            event.setCancelled(true);
-            return;
-        }
-
-        boolean ok = sellContainer(player, clicked, util.shouldDestroyContainer(SellToolType.WAND));
-        if (ok) {
-            event.setCancelled(true);
+            SellResult result = sellContainer(player, clicked, util.shouldDestroyContainer(SellToolType.AXE));
+            if (result != null) {
+                event.setCancelled(true);
+            }
         }
     }
 
@@ -92,6 +134,10 @@ public final class SellToolListener implements Listener {
             return;
         }
 
+        if (!"BREAK".equalsIgnoreCase(util.getActivation(SellToolType.AXE))) {
+            return;
+        }
+
         Block block = event.getBlock();
         if (block == null) {
             return;
@@ -102,13 +148,13 @@ public final class SellToolListener implements Listener {
         }
 
         if (!util.isActiveInRegistry(tool)) {
-            handleExpired(player, tool);
+            handleRevoked(player, tool);
             event.setCancelled(true);
             return;
         }
 
         if (util.isExpired(tool)) {
-            handleExpired(player, tool);
+            handleExpired(player, tool, SellToolType.AXE);
             event.setCancelled(true);
             return;
         }
@@ -117,19 +163,19 @@ public final class SellToolListener implements Listener {
         sellContainer(player, block, util.shouldDestroyContainer(SellToolType.AXE));
     }
 
-    private boolean sellContainer(Player player, Block block, boolean destroyContainer) {
+    private SellResult sellContainer(Player player, Block block, boolean destroyContainer) {
         if (player == null || block == null) {
-            return false;
+            return null;
         }
 
         BlockState state = block.getState();
         if (!(state instanceof Container container)) {
-            return false;
+            return null;
         }
 
         Inventory inv = container.getInventory();
         if (inv == null) {
-            return false;
+            return null;
         }
 
         SellSource source = destroyContainer ? SellSource.TOOL_AXE : SellSource.TOOL_WAND;
@@ -144,7 +190,7 @@ public final class SellToolListener implements Listener {
             } else {
                 player.sendMessage(ChatColor.RED + "Economy is not available.");
             }
-            return true;
+            return result;
         }
 
         if (!result.success()) {
@@ -157,7 +203,7 @@ public final class SellToolListener implements Listener {
             for (ItemStack item : process.unsellable()) {
                 inv.addItem(item);
             }
-            return true;
+            return result;
         }
 
         if (messages != null) {
@@ -181,7 +227,7 @@ public final class SellToolListener implements Listener {
             destroyBlock(block);
         }
 
-        return true;
+        return result;
     }
 
     private void destroyBlock(Block block) {
@@ -242,18 +288,54 @@ public final class SellToolListener implements Listener {
         };
     }
 
-    private void handleExpired(Player player, ItemStack item) {
-        if (player == null || item == null) {
+    private void handleExpired(Player player, ItemStack item, SellToolType type) {
+        if (player == null || item == null || type == null) {
             return;
         }
 
         MessageService messages = plugin.getMessages();
-        util.revoke(item);
-        item.setAmount(0);
+        if (util.shouldSelfDestructOnExpiry(type)) {
+            util.revoke(item);
+            item.setAmount(0);
+        }
         if (messages != null) {
             messages.send(player, "selltools.expired");
         } else {
             player.sendMessage(ChatColor.RED + "This sell tool has expired.");
+        }
+    }
+
+    private void handleRevoked(Player player, ItemStack item) {
+        if (player == null || item == null) {
+            return;
+        }
+        util.revoke(item);
+        item.setAmount(0);
+        MessageService messages = plugin.getMessages();
+        if (messages != null) {
+            messages.send(player, "selltools.expired");
+        } else {
+            player.sendMessage(ChatColor.RED + "This sell tool has expired.");
+        }
+    }
+
+    private void handleNoUses(Player player, ItemStack item) {
+        handleNoUses(player, item, SellToolType.WAND);
+    }
+
+    private void handleNoUses(Player player, ItemStack item, SellToolType type) {
+        if (player == null || item == null || type == null) {
+            return;
+        }
+
+        util.revoke(item);
+        item.setAmount(0);
+
+        MessageService messages = plugin.getMessages();
+        if (messages != null) {
+            messages.send(player, "selltools.no_uses");
+        } else {
+            player.sendMessage(ChatColor.RED + "This sell tool has no uses left.");
         }
     }
 }

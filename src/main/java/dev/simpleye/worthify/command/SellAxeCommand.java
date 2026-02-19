@@ -10,10 +10,15 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-public final class SellAxeCommand implements CommandExecutor {
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+public final class SellAxeCommand implements CommandExecutor, TabCompleter {
 
     public static final String PERMISSION = "worthify.selltools.give";
 
@@ -102,5 +107,43 @@ public final class SellAxeCommand implements CommandExecutor {
             messages.send(sender, "selltools.given", "player", target.getName());
         }
         return true;
+    }
+
+    @Override
+    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+        if (args == null) {
+            return Collections.emptyList();
+        }
+
+        if (args.length == 2) {
+            return filterPrefix(args[1], units());
+        }
+
+        if (args.length == 3) {
+            return null;
+        }
+
+        return Collections.emptyList();
+    }
+
+    private static List<String> units() {
+        return List.of("seconds", "minutes", "hours", "days", "s", "m", "h", "d");
+    }
+
+    private static List<String> filterPrefix(String prefix, List<String> options) {
+        if (options == null || options.isEmpty()) {
+            return Collections.emptyList();
+        }
+        if (prefix == null) {
+            return new ArrayList<>(options);
+        }
+        String p = prefix.toLowerCase(java.util.Locale.ROOT);
+        List<String> out = new ArrayList<>();
+        for (String s : options) {
+            if (s.toLowerCase(java.util.Locale.ROOT).startsWith(p)) {
+                out.add(s);
+            }
+        }
+        return out;
     }
 }
